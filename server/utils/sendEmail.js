@@ -1,18 +1,18 @@
 import nodemailer from 'nodemailer';
 
-const sendEmail = async ({ to, subject, html }) => { // <--- Yahan { to, subject, html } likhein
+const sendEmail = async ({ to, subject, html }) => { 
     try {
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS, // App Password
+                pass: process.env.EMAIL_PASS, 
             },
         });
 
         await transporter.sendMail({
             from: `"Ecommerce App" <${process.env.EMAIL_USER}>`,
-            to: to, // <--- Ab ye sahi 'to' uthayega
+            to: to, 
             subject: subject,
             html: html
         });
