@@ -181,3 +181,27 @@ export const getMyProfile = async (req, res) => {
         });
     }
 }
+
+// Logout
+
+export const logOut = async (req,res) => {
+    try {
+        res.cookie('token',"",{
+            httpOnly: true,
+            expires:new Date(0),
+            secure: false,
+            sameSite: "lax"
+        })
+
+        return res.status(200).json({
+            success: true,
+            message: "Logout Successfully"
+        })
+
+        } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Problem Logout"
+        })
+    }
+}
