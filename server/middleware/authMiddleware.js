@@ -12,7 +12,7 @@ export const isAuthorized = async (req, res, next) => {
         success: false,
         message: "Please login first"
       });
-    }
+    } 
 
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
 
