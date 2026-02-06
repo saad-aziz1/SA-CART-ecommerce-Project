@@ -76,7 +76,7 @@ export const SignUp = async (req, res) => {
                  <h2>Welcome ${newUser.firstName}</h2>
                 <p>Please verify your email by clicking the link below:</p>
                 <a href="${verifyLink}">Verify Email</a>
-                <p>This link will expire in 15 minutes.</p>`
+                <p>This link will expire in 10 minutes.</p>`
         })
 
         return res.status(201).json({
@@ -177,7 +177,7 @@ export const getMyProfile = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Profile load karne mein masla hua"
+            message: "Profile can not loaded"
         });
     }
 }
@@ -203,5 +203,115 @@ export const logOut = async (req,res) => {
             success: false,
             message: "Problem Logout"
         })
+    }
+}
+
+// forgot password
+
+export const forgotPassword = async (req,res) => {
+    try {
+        const {email} = req.body
+    const user = await User.findOne({email});
+    if(!user){
+        return res.status(404).json({
+            success:false,
+            message:"User not found"
+        })
+    }
+    const generateOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiryTime = new Date(Date.now() + 15 * 60 * 1000)
+
+    user.otp = generateOtp;
+    user.otpExpiry= expiryTime;
+    await user.save();
+    
+    //sending email
+    try {
+        const msg = `Password Reset OTP ${generateOtp} Vaild for 15 min only`
+        await sendEmail({
+            to: user.email,
+            subject: "Recovery Password",
+            html:msg
+        })
+        
+        return res.status(200).json({
+            success:true,
+            message:`email sent to ${user.email} successfully`
+        })
+    
+    
+    } catch (error) {
+        user.otp = null,
+        user.otpExpiry = null,
+        await user.save()
+        return res.status(500).json({
+            sussess:false,
+            message: "Email can't send, Server Error"
+        })
+    }
+
+    //server final response
+    return res.status(200).json({
+        success:true,
+        message:"OTP sent to your email. Please Check Your Inbox",
+        otp: generateOtp
+    })
+
+
+    } catch (error) {
+        res.status(500).json({
+            success:false,
+            message:"Error in forgot password",error
+        })
+        console.log(error);
+        
+    }
+}
+
+// resetPassword
+
+export const resetPassword = async (req,res) => {
+    try {
+        const {email, otp, newPassword} = req.body
+        const user = await User.findOne({email})
+        if(!user){
+            return res.status(400).json({
+                success:false,
+                message:"User not Found"
+            })
+        }
+        if(!user.otp || user.otp !== otp){
+            return res.status(400).json({
+                success:false,
+                message:"Wrong OTP"
+            })
+        }
+        if(user.otpExpiry < Date.now()){
+            return res.status(400).json({
+                success:false,
+                message:"OTP Expired"
+            })
+        }
+
+        const hashPassword = await bcrypt.hash(newPassword, 10)
+
+        user.password = hashPassword;
+        user.otp = null;
+        user.otpExpiry = null;
+        await user.save()
+
+        return res.status(200).json({
+            success:true,
+            message:"Password changed Successfully, You van Login"
+        })
+    
+    
+    } catch (error) {
+         res.status(500).json({
+                success:false,
+                message:"Can't Reset Password, Server Error"
+            })
+            console.log(error);
+            
     }
 }

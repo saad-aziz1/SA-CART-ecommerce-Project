@@ -3,7 +3,7 @@ import User from '../models/userModels.js';
 
 export const verifyEmail = async (req, res) => {
     try {
-        const { token } = req.query;
+        const {token} = req.query;
         if (!token) {
             return res.status(400).json({ success: false, message: "Token missing" });
         }
