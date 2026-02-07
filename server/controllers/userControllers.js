@@ -106,7 +106,7 @@ export const SignUp = async (req, res) => {
 export const logIn = async (req, res) => {
     try {
         // Login Validation Check
-        const { error } = loginSchema.validate(req.body);
+        const {error} = loginSchema.validate(req.body);
         if (error) return res.status(400).json({ success: false, message: error.details[0].message });
 
         const { email, password } = req.body
@@ -332,6 +332,28 @@ export const getAllUsers = async (req,res) => {
             success:false,
             message: "Users can't get" 
         
+        }) 
+    }
+}
+
+// getUserById
+
+export const getUserByID = async (req,res) => {
+    try {
+        const user = await User.findById(req.params.id).select("-password")
+        if(user){
+            res.status(200).json(user)
+        }else{
+            res.status(404).json({
+                message:"User not Found"
+            })
+        }
+
+} catch (error) {
+        res.status(500).json({
+            success:false,
+            message: "Server Error",
+            error:error.message       
         }) 
     }
 }
