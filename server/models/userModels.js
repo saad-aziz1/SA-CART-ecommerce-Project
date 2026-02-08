@@ -24,7 +24,13 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:true
+        required: function () {
+            return !this.isGoogleUser
+        }
+    },
+    isGoogleUser:{
+        type:Boolean,
+        default:false
     },
     role:{
         type:String,

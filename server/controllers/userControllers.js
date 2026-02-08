@@ -51,7 +51,8 @@ export const SignUp = async (req, res) => {
             firstName,
             lastName,
             email,
-            password: hashPassword
+            password: hashPassword,
+            isGoogleUser:false
         });
 
         // token generate & parsing
@@ -59,8 +60,8 @@ export const SignUp = async (req, res) => {
 
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV,
-            sameSite: "Strict",
+            secure: false,
+            sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
@@ -181,6 +182,53 @@ export const getMyProfile = async (req, res) => {
         });
     }
 }
+
+//gooleLogIn
+export const googleLogin = async (req, res) => {
+  try {
+    const { name, email } = req.body;
+
+    const nameParts = name.split(" ");
+    const firstName = nameParts[0];
+    const lastName = nameParts.slice(1).join(" ") || "User";
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        firstName,
+        lastName,
+        email,
+        isGoogleUser:true
+      });
+    }
+
+    const token = generateToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "User SignUp Successful",
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Google Login Error",
+      error: error.message
+    });
+  }
+};
+
 
 // Logout
 
@@ -357,3 +405,4 @@ export const getUserByID = async (req,res) => {
         }) 
     }
 }
+
