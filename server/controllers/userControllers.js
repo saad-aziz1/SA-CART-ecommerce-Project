@@ -350,7 +350,7 @@ export const resetPassword = async (req,res) => {
 
         return res.status(200).json({
             success:true,
-            message:"Password changed Successfully, You van Login"
+            message:"Password changed Successfully, You can Login"
         })
     
     
