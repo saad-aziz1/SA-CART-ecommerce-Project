@@ -7,7 +7,11 @@ import { Eye, EyeOff, Mail, Lock, LogIn as LoginIcon } from 'lucide-react';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../../utils/Firebase';
 
+import { useDispatch } from 'react-redux';
+import { setAuthUser } from '../redux/authSlice';
+
 const LogIn = () => {
+  const dispatch = useDispatch()
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsloading] = useState(false);
@@ -21,16 +25,18 @@ const LogIn = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- Normal Login Function ---
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsloading(true);
     try {
       const res = await axios.post("http://localhost:3000/api/user/login", formData, { withCredentials: true });
       if (res.status === 200 || res.status === 201) {
+        dispatch(setAuthUser(res.data.user))
         toast.success('Logged in successfully!');
         navigate('/'); 
       }
+      
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed.');
     } finally {
@@ -38,13 +44,13 @@ const LogIn = () => {
     }
   };
 
-  // --- Google Login Function ---
+  
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Backend ko data bhejna (Same as Signup logic)
+      
       const res = await axios.post("http://localhost:3000/api/user/googlelogin", {
         name: user.displayName,
         email: user.email,
@@ -125,7 +131,7 @@ const LogIn = () => {
             <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#F8FAFC] px-4 text-[#94A3B8] text-[9px] font-black uppercase tracking-widest">Or Social Login</span>
           </div>
 
-          {/* Google Login Button with onClick */}
+        
           <button 
             type="button"
             onClick={handleGoogleLogin}

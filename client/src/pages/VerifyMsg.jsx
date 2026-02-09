@@ -22,7 +22,7 @@ const VerifyMsg = () => {
                         <h2 className="text-[#020617] text-2xl font-black tracking-tighter uppercase">
                             Verify <span className="text-[#F59E0B]">Email</span>
                         </h2>
-                        <p className="text-[#94A3B8] text-xs font-medium leading-relaxed">
+                        <p className="text-[#5979a7] text-xs font-medium leading-relaxed">
                             We've sent a verification link to your inbox. 
                             Please check and activate your account.
                         </p>

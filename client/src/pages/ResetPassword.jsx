@@ -17,9 +17,13 @@ const ResetPassword = () => {
     newPassword: ""
   });
 
-  const handleInput = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+const handleInput = (e) => {
+  const { name, value } = e.target;
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value
+  }));
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -86,7 +90,7 @@ const ResetPassword = () => {
               <div className="relative">
                 <input
                   type="password" name="newPassword" required value={formData.newPassword}
-                  onChange={handleInput} placeholder="••••••••"
+                  onChange={handleInput} placeholder="Enter New Password"
                   className="w-full bg-white border border-[#94A3B8]/30 rounded-xl py-3 pl-10 text-sm focus:outline-none focus:border-[#F59E0B]"
                 />
                 <Lock className="absolute left-3 top-3.5 w-4 h-4 text-[#94A3B8]" />
@@ -95,7 +99,7 @@ const ResetPassword = () => {
 
             <button
               disabled={isLoading} type="submit"
-              className="w-full bg-[#F59E0B] text-[#020617] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#10B981] hover:text-white transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:opacity-70 mt-4"
+              className="w-full bg-[#F59E0B] text-[#020617] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#0F172A] hover:text-white transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:opacity-70 mt-4"
             >
               {isLoading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : (
                 <>Update Password <CheckCircle className="w-4 h-4" /></>

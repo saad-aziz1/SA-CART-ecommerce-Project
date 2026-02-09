@@ -9,6 +9,8 @@ import Products from './pages/Products.jsx'
 import VerifyMsg from './pages/VerifyMsg.jsx'
 import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
+import store from './redux/store'
+import { Provider } from 'react-redux'
 
 
 
@@ -54,7 +56,7 @@ const projectRouter = createBrowserRouter([
 
 
 createRoot(document.getElementById('root')).render(
-
+  <Provider store={store}>
   <RouterProvider router={projectRouter}/>
-  
+  </Provider>
 )
