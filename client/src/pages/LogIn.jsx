@@ -11,8 +11,11 @@ import { useDispatch } from 'react-redux';
 import { setAuthUser } from '../redux/authSlice';
 
 const LogIn = () => {
-  const dispatch = useDispatch()
+  // Logic Hooks
+  const dispatch = useDispatch(); 
   const navigate = useNavigate();
+
+  // State Variables (Missing in your previous snippet)
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsloading] = useState(false);
   const [formData, setFormData] = useState({
@@ -20,58 +23,63 @@ const LogIn = () => {
     password: "",
   });
 
+  // Input Handler
   const handleForm = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-
+  // Manual Login Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsloading(true);
     try {
       const res = await axios.post("http://localhost:3000/api/user/login", formData, { withCredentials: true });
+      
       if (res.status === 200 || res.status === 201) {
-        dispatch(setAuthUser(res.data.user))
+        // Redux update logic
+        dispatch(setAuthUser(res.data.user)); 
         toast.success('Logged in successfully!');
         navigate('/'); 
       }
-      
     } catch (error) {
+      console.error(error);
       toast.error(error.response?.data?.message || 'Login failed.');
     } finally {
       setIsloading(false);
     }
   };
 
-  
+  // Google Login Handler
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      
-      const res = await axios.post("http://localhost:3000/api/user/googlelogin", {
-        name: user.displayName,
-        email: user.email,
-        profilePic: user.photoURL
-      }, { withCredentials: true });
+      const res = await axios.post(
+        "http://localhost:3000/api/user/googlelogin",
+        {
+          name: user.displayName,
+          email: user.email,
+        },
+        { withCredentials: true }
+      );
 
-      if (res.status === 200 || res.status === 201) {
-        toast.success('User Login Successful!');
-        navigate('/');
-      }
+      // Dispatching to Redux and LocalStorage
+      dispatch(setAuthUser(res.data.user)); 
+      toast.success("Google Login Successful!");
+      navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error("Google login error:", error);
       toast.error("Google Sign-In failed.");
     }
   };
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#0F172A_0%,#1E293B_50%,#0F172A_100%)] flex items-center justify-center p-4 py-10">
-      
       <div className="bg-[#F8FAFC] w-full max-w-md md:max-w-[460px] rounded-[1.5rem] shadow-2xl border border-[#94A3B8]/20 overflow-hidden">
         
+        {/* Header Section */}
         <div className="bg-[#0F172A] p-8 text-center border-b border-[#F59E0B]/20">
           <h2 className="text-[#F8FAFC] text-3xl font-black tracking-tighter uppercase">
             SA<span className="text-[#F59E0B]">-</span>CART
@@ -82,6 +90,7 @@ const LogIn = () => {
         <div className="p-6 md:p-8">
           <form className="space-y-4" onSubmit={handleSubmit}>
             
+            {/* Email Field */}
             <div className="space-y-1.5">
               <label className="text-[#020617] text-[10px] font-black uppercase tracking-widest ml-1">Email Address</label>
               <div className="relative">
@@ -95,6 +104,7 @@ const LogIn = () => {
               </div>
             </div>
 
+            {/* Password Field */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center px-1">
                 <label className="text-[#020617] text-[10px] font-black uppercase tracking-widest">Password</label>
@@ -116,6 +126,7 @@ const LogIn = () => {
               </div>
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit" disabled={isLoading}
               className="w-full bg-[#F59E0B] text-[#020617] py-3.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#0F172A] hover:text-[#F8FAFC] transition-all flex items-center justify-center gap-2 shadow-lg group mt-4 active:scale-95 disabled:opacity-70"
@@ -126,12 +137,13 @@ const LogIn = () => {
             </button>
           </form>
 
+          {/* Divider */}
           <div className="relative my-8 text-center">
             <hr className="border-[#94A3B8]/20" />
             <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#F8FAFC] px-4 text-[#94A3B8] text-[9px] font-black uppercase tracking-widest">Or Social Login</span>
           </div>
 
-        
+          {/* Google Login Button */}
           <button 
             type="button"
             onClick={handleGoogleLogin}
@@ -141,6 +153,7 @@ const LogIn = () => {
             Sign in with Google
           </button>
 
+          {/* Footer Link */}
           <p className="text-center mt-8 text-xs text-[#94A3B8] font-medium">
             Don't have an account?
             <Link to="/signup" className="text-[#0F172A] font-black hover:text-[#F59E0B] ml-1.5 transition-colors underline decoration-[#F59E0B]/30 underline-offset-4">Create One</Link>
