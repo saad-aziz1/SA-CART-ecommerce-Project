@@ -11,6 +11,7 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import store from './redux/store'
 import { Provider } from 'react-redux'
+import ProductDetails from './pages/productDetails.jsx'
 
 
 
@@ -47,6 +48,14 @@ const projectRouter = createBrowserRouter([
       {
         path:'/reset-password',
         element:<ResetPassword/>
+      },
+      {
+        path:'/products',
+        element:<Products/>
+      },
+      {
+        path:'/product/:id',
+        element:<ProductDetails/>
       }
       
   ]
