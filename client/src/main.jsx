@@ -1,4 +1,4 @@
-import { createBrowserRouter,  RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
@@ -12,60 +12,83 @@ import ResetPassword from './pages/ResetPassword.jsx'
 import store from './redux/store'
 import { Provider } from 'react-redux'
 import ProductDetails from './pages/productDetails.jsx'
+import AdminSidebar from './admin/AdminSidebar.jsx'
+import AddProduct from './admin/AddProduct.jsx'
+import AllProducts from './admin/AllProducts.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx' // Import Chowkidar
+import AllUsers from './admin/AllUsers.jsx'
 
 
 
-
+// --- ROUTER CONFIGURATION ---
 const projectRouter = createBrowserRouter([
   {
-    path:'/',
-    element:<App/>,
-    children:[
+    path: '/',
+    element: <App />,
+    children: [
       {
-        path:'/',
-        element:<Home/>
+        path: '/',
+        element: <Home />
       },
+      {
+        path: '/login',
+        element: <LogIn />
+      },
+      {
+        path: '/signup',
+        element: <SignUp />
+      },
+      {
+        path: '/products',
+        element: <Products />
+      },
+      {
+        path: '/verify',
+        element: <VerifyMsg />
+      },
+      {
+        path: '/forgot-password',
+        element: <ForgotPassword />
+      },
+      {
+        path: '/reset-password',
+        element: <ResetPassword />
+      },
+      {
+        path: '/product/:id',
+        element: <ProductDetails />
+      },
+
+      // --- PROTECTED ADMIN ROUTES ---
+      {
+        element: <ProtectedRoute isAdmin={true} />, // Protection Layer
+        children: [
           {
-        path:'/login',
-        element:<LogIn/>
-      },
-          {
-        path:'/signup',
-        element:<SignUp/>
-      },
-      {
-        path:'/products',
-        element:<Products/>
-      },
-      {
-        path:'/verify',
-        element:<VerifyMsg/>
-      },
-      {
-        path:'/forgot-password',
-        element:<ForgotPassword/>
-      },
-      {
-        path:'/reset-password',
-        element:<ResetPassword/>
-      },
-      {
-        path:'/products',
-        element:<Products/>
-      },
-      {
-        path:'/product/:id',
-        element:<ProductDetails/>
+            path: '/admin-sidebar',
+            element: <AdminSidebar />,
+            children: [
+              {
+                path: 'add-product', 
+                element: <AddProduct />
+              },
+              {
+                path: 'products', 
+                element: <AllProducts />
+              },
+              {
+                path: 'users', 
+                element: <AllUsers />
+              }
+            ]
+          }
+        ]
       }
-      
-  ]
+    ]
   }
 ])
 
-
-
 createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-  <RouterProvider router={projectRouter}/>
+    <RouterProvider router={projectRouter} />
   </Provider>
 )

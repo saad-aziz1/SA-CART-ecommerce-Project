@@ -365,44 +365,69 @@ export const resetPassword = async (req,res) => {
 }
 
 // getAllUsers - Admin Only
-
-export const getAllUsers = async (req,res) => {
+export const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find()
+        // 1: .select("-password") lazmi hy taake security leak na ho
+        const users = await User.find().select("-password");
+
         res.status(200).json({
-            success:true,
+            success: true,
             count: users.length,
             users
-        })
-    
+        });
     } catch (error) {
-       res.status(500).json({
-            success:false,
-            message: "Users can't get" 
-        
-        }) 
+        res.status(500).json({
+            success: false,
+            message: "Failed to fetch users" 
+        }); 
     }
-}
+};
 
-// getUserById
-
-export const getUserByID = async (req,res) => {
+// getUserById - Admin Only
+export const getUserByID = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).select("-password")
-        if(user){
-            res.status(200).json(user)
-        }else{
+        const user = await User.findById(req.params.id).select("-password");
+
+        if (user) {
+            // 2: Object ke sath success flag lazmi bhejen
+            res.status(200).json({
+                success: true,
+                user
+            });
+        } else {
             res.status(404).json({
-                message:"User not Found"
-            })
+                success: false,
+                message: "User not Found"
+            });
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server Error",
+            error: error.message       
+        }); 
+    }
+};
+
+// Update User Role -- Admin Only
+export const updateUserRole = async (req, res) => {
+    try {
+        // 1: User ko ID se dhondna
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
         }
 
-} catch (error) {
-        res.status(500).json({
-            success:false,
-            message: "Server Error",
-            error:error.message       
-        }) 
-    }
-}
+        // 2: Naya role body se lena aur update karna
+        user.role = req.body.role; 
+        await user.save();
 
+        res.status(200).json({
+            success: true,
+            message: "User role updated successfully",
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

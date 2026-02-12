@@ -31,6 +31,12 @@ const productSchema = new mongoose.Schema({
         }
     }
     ],
+    features: [
+    {
+        type: String,
+        trim: true
+    }
+    ],
     category:{
         type:String,
         required:[true, "Please Select category for this Product"]

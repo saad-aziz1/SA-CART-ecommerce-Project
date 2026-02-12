@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'; 
 
-// REDUX ACTIONS: Products fetch karne ke liye
+// REDUXACTIONS
 import { getProductRequest, getProductsSuccess, getProductsFail } from '../redux/productSlice';
 
 const Products = () => {
@@ -60,15 +60,12 @@ const Products = () => {
                   <span className="text-[#94A3B8] text-[10px]">({item.numOfReviews || 0} Reviews)</span>
                 </div>
 
-                {/* --- LINE CLAMP CLASS --- */}
-                {/* 'line-clamp-2' wo class hy jo text ko 2 lines k bad truncate krti hy (...) 
-                  'h-8' height is liye di hy takay description na honay par b card ka size same rahay.
-                */}
+              
                 <p className="text-[#0F172A] text-[11px] leading-tight mb-3 line-clamp-2 overflow-hidden ">
                   {item.description}
                 </p>
 
-                <p className="text-[#10B981] font-black text-xl mb-4">${item.price}</p>
+                <p className="text-[#10B981] font-black text-xl mb-4">Rs {item.price}</p>
 
                 <div className="flex gap-2 mt-auto">
                   <Link to={`/product/${item._id}`} className="flex-1">
