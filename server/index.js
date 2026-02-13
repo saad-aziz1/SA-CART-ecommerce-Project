@@ -7,6 +7,7 @@ dotenv.config()
 import cors from 'cors'
 import productRouter from './Routers/productRouter.js'
 import connectCloudinary from './config/cloudinary.js'
+import cartRouter from './Routers/cartRouter.js';
 
 const app = express()
 app.use(cors({
@@ -17,11 +18,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use('/api/user', userRouter)
-// index.js (Temporary Test)
-app.get('/api/product/test', (req, res) => {
-    res.send("Backend is Working and Path is Correct!");
-});
 app.use('/api/product',productRouter)
+app.use('/api/cart', cartRouter);
+
 
 
 const port = process.env.PORT || 5000

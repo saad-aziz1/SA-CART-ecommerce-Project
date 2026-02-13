@@ -3,29 +3,33 @@ import Navbar from "./components/Navbar"
 import Footer from './components/Footer'
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux' // useSelector add kiya
 import { setAuthUser } from './redux/authSlice'
+import { fetchCart } from './redux/cartSlice' // fetchCart import kiya
 
 function App() {
   const dispatch = useDispatch();
+  // NAYA KAAM: Auth state se user nikala
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // SHORT TRICK: 
-    // Jab Google Login redirect karta hai, toh data aksar localStorage mein 
-    // ya cookie mein pehle se save ho chuka hota hai backend ke zariye.
-    // Hum check kar rahe hain ke agar storage mein user hai lekin Redux khali hai,
-    // toh usey wapis synchronize kar do.
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser);
-        // Redux ke Bank (Store) ko foran update kar rahe hain
         dispatch(setAuthUser(parsedUser));
       } catch (error) {
         console.error("Error syncing auth state:", error);
       }
     }
   }, [dispatch]);
+
+  // NAYA KAAM: Cart Synchronization
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchCart());
+    }
+  }, [dispatch, user]);
 
   return (
     <>

@@ -13,6 +13,9 @@ const Navbar = () => {
 
   const { user } = useSelector((state) => state.auth);
 
+  // --- CART STATE CONNECTION ---
+  const { cartItems } = useSelector((state) => state.cart);
+
   const handleLogout = async () => {
     try {
       const res = await axios.get(
@@ -96,20 +99,28 @@ const Navbar = () => {
                 </>
               )}
 
+              {/* CART LINK DESKTOP */}
               <Link to="/cart" className="relative p-2 group">
                 <ShoppingCart className="w-6 h-6 group-hover:text-[#F59E0B] transition-all" />
-                <span className="absolute top-0 right-0 bg-[#10B981] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-                  0
-                </span>
+                {cartItems && cartItems.length > 0 && (
+                  <span className="absolute top-0 right-0 bg-[#10B981] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                    {cartItems.length}
+                  </span>
+                )}
               </Link>
             </div>
           </div>
 
           {/* Mobile Controls */}
           <div className="lg:hidden flex items-center gap-3">
+            {/* CART LINK MOBILE */}
             <Link to="/cart" className="relative p-2">
               <ShoppingCart className="w-6 h-6 text-[#F8FAFC]" />
-              <span className="absolute top-0 right-0 bg-[#10B981] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">0</span>
+              {cartItems && cartItems.length > 0 && (
+                <span className="absolute top-0 right-0 bg-[#10B981] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+                  {cartItems.length}
+                </span>
+              )}
             </Link>
 
             <button

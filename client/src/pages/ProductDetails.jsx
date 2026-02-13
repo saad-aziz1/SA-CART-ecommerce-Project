@@ -3,36 +3,35 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { getProductRequest, getProductDetailsSuccess, getProductsFail } from '../redux/productSlice';
+// --- CART ACTIONS & TOAST IMPORT ---
+// NAYA KAAM: addItemsToCart (Thunk) ko import kiya backend sync ke liye
+import { addItemsToCart, removeFromCart } from '../redux/cartSlice'; 
+import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
   const { id } = useParams(); 
   const navigate = useNavigate(); 
   const dispatch = useDispatch();
   
-  
   const [mainImage, setMainImage] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [isWishlist, setIsWishlist] = useState(false); 
 
-  
   const { product, loading, error } = useSelector((state) => state.products);
+
+  // --- 1: CART STATE & CHECK ---
+  const { cartItems } = useSelector((state) => state.cart);
+  const isInCart = cartItems.find((i) => i.product === id);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
         dispatch(getProductRequest());
-        
-        
         const { data } = await axios.get(`http://localhost:3000/api/product/product/${id}`, { withCredentials: true });
-        
-        
         dispatch(getProductDetailsSuccess(data)); 
-        
-        
         if(data.product.images?.length > 0) setMainImage(data.product.images[0].url);
       } catch (err) {
-        
         dispatch(getProductsFail(err.response?.data?.message || "Product not found"));
       }
     };
@@ -49,6 +48,28 @@ const ProductDetails = () => {
     setQuantity(quantity - 1); 
   };
 
+  // --- 2: ADD / REMOVE HANDLER ---
+  const toggleCartHandler = () => {
+    if (isInCart) {
+      // Remove Logic
+      dispatch(removeFromCart(id));
+      toast.success("Removed from cart!");
+    } else {
+      // Add Logic
+      if (product.stock < 1) return toast.error("Out of Stock!");
+      
+      // NAYA KAAM: Ab addToCart ki jagah addItemsToCart (Thunk) use ho raha hy
+      dispatch(addItemsToCart({
+        product: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0]?.url,
+        stock: product.stock,
+        quantity: quantity 
+      }));
+      toast.success("Added to Cart!");
+    }
+  };
 
   if (loading) return (
     <div className="flex justify-center mt-20">
@@ -56,7 +77,6 @@ const ProductDetails = () => {
     </div>
   );
 
-  
   if (error) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-4 text-center">
       <div className="text-6xl mb-4">🚫</div>
@@ -73,7 +93,6 @@ const ProductDetails = () => {
         {/* Gallery */}
         <div className="bg-white rounded-[32px] shadow-sm border border-[#94A3B8]/10 overflow-hidden flex flex-col md:flex-row mb-10">
           
-          {/* GalleryImage */}
           <div className="md:w-3/5 p-8 border-r border-[#94A3B8]/10 bg-white text-center">
             <div className="w-full h-[500px] flex items-center justify-center mb-8 bg-[#F8FAFC] rounded-2xl overflow-hidden">
               <img 
@@ -82,7 +101,6 @@ const ProductDetails = () => {
                 alt="Main" 
               />
             </div>
-            {/* LoopImages */}
             <div className="flex gap-4 justify-center overflow-x-auto py-2">
               {product?.images?.map((img, i) => (
                 <img 
@@ -96,7 +114,6 @@ const ProductDetails = () => {
             </div>
           </div>
 
-          {/* ProductDetails&Buttons */}
           <div className="md:w-2/5 p-10 flex flex-col justify-center bg-white">
             <h1 className="text-[#020617] text-2xl md:text-3xl font-extrabold mb-4 uppercase leading-tight tracking-tight">
               {product?.name}
@@ -109,7 +126,6 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* features*/}
             <div className="mb-8 py-5 border-t border-b border-dashed border-[#94A3B8]/30">
               <p className="text-xs font-black text-[#94A3B8] mb-4 tracking-widest uppercase">Key Highlights</p>
               <ul className="grid gap-3">
@@ -118,11 +134,10 @@ const ProductDetails = () => {
                     <span className="bg-[#10B981]/20 text-[#10B981] w-5 h-5 rounded-full flex items-center justify-center text-[10px]">✔</span> 
                     {feat}
                   </li>
-                )) || <li className="text-[#94A3B8] text-sm italic italic">Premium Quality Product</li>}
+                )) || <li className="text-[#94A3B8] text-sm italic">Premium Quality Product</li>}
               </ul>
             </div>
 
-            {/* Quantity */}
             <div className="flex items-center gap-4 mb-8">
               <span className="text-xs font-bold text-[#94A3B8] uppercase">Quantity:</span>
               <div className="flex items-center gap-6 bg-[#F8FAFC] p-2 rounded-xl border border-[#94A3B8]/20">
@@ -132,16 +147,19 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* ActionButtons */}
             <div className="flex flex-col gap-3">
               <button className="w-full bg-[#0F172A] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#1E293B]">
                 Buy It Now
               </button>
               <div className="flex gap-3">
-                <button className="flex-[4] bg-[#F59E0B] text-white py-4 rounded-2xl font-bold uppercase">
-                  Add to Cart
+                <button 
+                  onClick={toggleCartHandler}
+                  className={`flex-[4] py-4 rounded-2xl font-bold uppercase transition-all duration-300 text-white
+                    ${isInCart ? 'bg-[#EF4444] hover:bg-[#B91C1C]' : 'bg-[#F59E0B] hover:bg-[#0F172A]'}`}
+                >
+                  {isInCart ? 'Remove from Cart' : 'Add to Cart'}
                 </button>
-                {/* WishlistToggle */}
+                
                 <button 
                   onClick={() => setIsWishlist(!isWishlist)} 
                   className={`flex-1 border-2 rounded-2xl flex items-center justify-center text-xl transition-all ${isWishlist ? 'border-[#EF4444] bg-[#EF4444] text-white' : 'border-[#94A3B8]/20 text-[#0F172A]'}`}
@@ -151,7 +169,6 @@ const ProductDetails = () => {
               </div>
             </div>
             
-            {/* StockLogic */}
             <p className={`mt-6 text-xs font-bold uppercase flex items-center gap-2 ${product?.stock > 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
               <span className={`w-2 h-2 rounded-full animate-pulse ${product?.stock > 0 ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`}></span>
               {product?.stock > 0 ? `${product?.stock} items in stock` : "Out of Stock"}
@@ -188,7 +205,6 @@ const ProductDetails = () => {
           </div>
 
           <div className="p-10 md:p-14 min-h-[300px]">
-            {/* activeTab */}
             {activeTab === "description" ? (
               <div className="text-[#475569] leading-loose text-base md:text-lg whitespace-pre-line max-w-4xl italic">
                 {product?.description}

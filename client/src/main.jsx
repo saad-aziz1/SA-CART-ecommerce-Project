@@ -11,14 +11,14 @@ import ForgotPassword from './pages/ForgotPassword.jsx'
 import ResetPassword from './pages/ResetPassword.jsx'
 import store from './redux/store'
 import { Provider } from 'react-redux'
-import ProductDetails from './pages/productDetails.jsx'
+import ProductDetails from './pages/ProductDetails.jsx'
 import AdminSidebar from './admin/AdminSidebar.jsx'
 import AddProduct from './admin/AddProduct.jsx'
 import AllProducts from './admin/AllProducts.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx' // Import Chowkidar
 import AllUsers from './admin/AllUsers.jsx'
-
-
+// --- CART PAGE IMPORT ---
+import Cart from './pages/Cart.jsx' 
 
 // --- ROUTER CONFIGURATION ---
 const projectRouter = createBrowserRouter([
@@ -57,6 +57,11 @@ const projectRouter = createBrowserRouter([
       {
         path: '/product/:id',
         element: <ProductDetails />
+      },
+      // --- NEW CART ROUTE ---
+      {
+        path: '/cart',
+        element: <Cart />
       },
 
       // --- PROTECTED ADMIN ROUTES ---
