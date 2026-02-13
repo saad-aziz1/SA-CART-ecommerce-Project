@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import Joi from 'joi';
 import { generateToken, generateVerifyToken } from "../config/token.js";
 import sendEmail from "../utils/sendEmail.js";
+import cloudinary from "cloudinary";
 
 //  Validation Schema.
 const signupSchema = Joi.object({
@@ -367,7 +368,7 @@ export const resetPassword = async (req,res) => {
 // getAllUsers - Admin Only
 export const getAllUsers = async (req, res) => {
     try {
-        // 1: .select("-password") lazmi hy taake security leak na ho
+        
         const users = await User.find().select("-password");
 
         res.status(200).json({
@@ -430,4 +431,104 @@ export const updateUserRole = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
+};
+
+// --- GET USER DETAILS (PROFILE) ---
+
+export const getUserDetails = async (req, res, next) => {
+    try {
+        
+        const user = await User.findById(req.user.id);
+
+        res.status(200).json({
+            success: true,
+            user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
+// userControllers.js
+
+export const updateProfile = async (req, res) => {
+  try {
+    // 1. Check if user is authenticated (middleware should provide req.user)
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: "Please login to update profile" });
+    }
+
+    console.log("1. Request received for User ID:", req.user.id);
+    
+    const { avatar } = req.body;
+
+    // 2. Check if avatar data exists
+    if (!avatar) {
+      return res.status(400).json({ success: false, message: "No image data provided" });
+    }
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    console.log("2. User found in DB:", user.firstName);
+
+    // 3. Cloudinary Upload Logic with Timeout Fix
+    console.log("3. Sending data to Cloudinary (waiting for response)...");
+    
+    let myCloud;
+    try {
+      myCloud = await cloudinary.v2.uploader.upload(avatar, {
+        folder: "avatars",
+        width: 150,
+        crop: "scale",
+        resource_type: "auto",
+        timeout: 60000, // 👈 60 seconds timeout to fix 499 error
+      });
+      console.log("4. Cloudinary Upload Success!");
+    } catch (cloudErr) {
+      console.log("🔥 CLOUDINARY DETAIL ERROR:", JSON.stringify(cloudErr, null, 2));
+      return res.status(500).json({ 
+        success: false, 
+        message: `Cloudinary Error: ${cloudErr.message || "Timeout/Connection Issue"}` 
+      });
+    }
+
+    // 4. Delete Old Image if it exists
+    if (user.avatar && user.avatar.public_id && user.avatar.public_id !== "") {
+      try {
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+        console.log("Old image deleted from Cloudinary");
+      } catch (delErr) {
+        console.log("Note: Could not delete old image, moving on...");
+      }
+    }
+
+    // 5. Update Database Fields
+    user.avatar = {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    };
+
+    // Use .save() to trigger any hooks if needed, but bypass main validation
+    await user.save({ validateBeforeSave: false });
+    console.log("5. Profile updated in Database successfully!");
+
+    // 6. Final Response
+    res.status(200).json({
+      success: true,
+      message: "Profile Updated Successfully",
+      user, // Full user object for frontend state sync
+    });
+
+  } catch (error) {
+    console.error("🔥 SYSTEM CRITICAL ERROR:", error.message);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  }
 };

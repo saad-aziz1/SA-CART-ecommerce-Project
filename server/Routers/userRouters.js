@@ -1,5 +1,17 @@
 import express from 'express'
-import { forgotPassword, getAllUsers, getMyProfile, getUserByID, googleLogin, logIn, logOut, resetPassword, SignUp, updateUserRole } from '../controllers/userControllers.js'
+import { 
+    forgotPassword, 
+    getAllUsers, 
+    getUserByID, 
+    getUserDetails, 
+    googleLogin, 
+    logIn, 
+    logOut, 
+    resetPassword, 
+    SignUp, 
+    updateUserRole,
+    updateProfile // Naya controller import karen
+} from '../controllers/userControllers.js'
 import { verifyEmail } from '../controllers/emailVrifyController.js'
 import { isAuthorized } from '../middleware/authMiddleware.js'
 import { isAdmin } from '../middleware/adminAuth.js'
@@ -16,7 +28,11 @@ userRouter.post('/reset-password', resetPassword)
 userRouter.get('/logout', logOut)
 
 // --- User (Authenticated) Routes ---
-userRouter.get('/profile', isAuthorized, getMyProfile)
+userRouter.get('/me', isAuthorized, getUserDetails)
+
+// UPDATED: Profile Update Route
+// Path: /api/user/me/update
+userRouter.put('/me/update', isAuthorized, updateProfile)
 
 // --- Admin Only Routes ---
 // Yaad rakhen: Inhen hamesha wildcard (/:id) se ooper rakhen

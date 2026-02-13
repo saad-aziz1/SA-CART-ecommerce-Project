@@ -3,13 +3,13 @@ import Navbar from "./components/Navbar"
 import Footer from './components/Footer'
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux' // useSelector add kiya
-import { setAuthUser } from './redux/authSlice'
-import { fetchCart } from './redux/cartSlice' // fetchCart import kiya
+import { useDispatch, useSelector } from 'react-redux'
+// NAYA KAAM: loadUser import kiya backend sync ke liye
+import { setAuthUser, loadUser } from './redux/authSlice' 
+import { fetchCart } from './redux/cartSlice'
 
 function App() {
   const dispatch = useDispatch();
-  // NAYA KAAM: Auth state se user nikala
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -22,9 +22,13 @@ function App() {
         console.error("Error syncing auth state:", error);
       }
     }
+    
+    // NAYA KAAM: Backend se fresh user data load karna
+    // Taake agar token expire ho gaya ho ya data badal gaya ho toh sync ho jaye
+    dispatch(loadUser());
   }, [dispatch]);
 
-  // NAYA KAAM: Cart Synchronization
+  // Cart Synchronization
   useEffect(() => {
     if (user) {
       dispatch(fetchCart());

@@ -19,6 +19,8 @@ import ProtectedRoute from './components/ProtectedRoute.jsx' // Import Chowkidar
 import AllUsers from './admin/AllUsers.jsx'
 // --- CART PAGE IMPORT ---
 import Cart from './pages/Cart.jsx' 
+import Profile from './pages/Profile.jsx'
+import UpdateProfile from './pages/UpdateProfile.jsx'
 
 // --- ROUTER CONFIGURATION ---
 const projectRouter = createBrowserRouter([
@@ -62,6 +64,14 @@ const projectRouter = createBrowserRouter([
       {
         path: '/cart',
         element: <Cart />
+      },
+      {
+        path: '/profile',
+        element: <Profile />
+      },
+      {
+        path: '/update-profile',
+        element: <UpdateProfile />
       },
 
       // --- PROTECTED ADMIN ROUTES ---
