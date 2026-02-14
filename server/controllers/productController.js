@@ -56,32 +56,34 @@ export const createProduct = async (req, res) => {
 }
 
 // --- GET ALL PRODUCTS (Enhanced with Search & Filter) ---
+// --- GET ALL PRODUCTS (Enhanced with Search & Filter) ---
 export const getAllProducts = async (req, res) => {
     try {
         const resultPerPage = 8; // Ek page par kitne products dikhane hain
         const productsCount = await Product.countDocuments(); // Database me total products kitne hain
 
-        // ApiFeatures ka use krty huay search aur filter apply krna
+        // 1. ApiFeatures initialize karna
         const apiFeature = new ApiFeatures(Product.find(), req.query)
             .search()
             .filter();
 
-        // Pehle filtered products ka count lety hain pagination se pehle
-        let products = await apiFeature.query;
-        const filteredProductsCount = products.length;
+        // 2. Filtered products ka count nikalna (Pagination se pehle)
+        // Hum clone() isliye use karte hain taake asal query kharab na ho
+        let filteredProducts = await apiFeature.query.clone();
+        const filteredProductsCount = filteredProducts.length;
 
-        // Ab pagination apply krna
+        // 3. Ab Pagination apply karna
         apiFeature.pagination(resultPerPage);
 
-        // Final products list hasil krna
-        products = await apiFeature.query.clone();
+        // 4. Final products list hasil karna (Final Execution)
+        const products = await apiFeature.query;
 
         res.status(200).json({
             success: true,
             products,
             productsCount,
             resultPerPage,
-            filteredProductsCount, // Ye frontend pr pagination ke liye lazmi hy
+            filteredProductsCount, // Frontend ke liye lazmi hai
         });
 
     } catch (error) {

@@ -14,7 +14,7 @@ const Products = () => {
   // --- STATE FOR PAGINATION ---
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Redux se data nikalna (Step 2 wala slice yahan kaam aye ga)
+  // Redux se data nikalna
   const { 
     products, 
     loading, 
@@ -49,12 +49,10 @@ const Products = () => {
       try {
         dispatch(getProductRequest());
         
-        // Backend Port 3000 use ho raha hai (Confirm from your index.js)
         let link = `http://localhost:3000/api/product/products?page=${currentPage}`;
 
         const { data } = await axios.get(link, { withCredentials: true });
         
-        // Data me productsCount aur resultPerPage shamil hain
         dispatch(getProductsSuccess(data)); 
       } catch (err) {
         dispatch(getProductsFail(err.response?.data?.message || "Server Error"));
@@ -64,7 +62,7 @@ const Products = () => {
   }, [dispatch, currentPage]);
 
   return (
-    <div className="bg-[#F8FAFC] min-h-screen p-8 md:p-16"> 
+    <div className="bg-[#F8FAFC] min-h-screen p-8 md:p-16 text-[#020617]"> 
       <h1 className="text-[#0F172A] text-3xl font-extrabold mb-10 text-center uppercase tracking-tight">All Products</h1>
 
       {loading ? (
@@ -84,12 +82,24 @@ const Products = () => {
                   </Link>
                   <div className="p-4 flex flex-col flex-grow">
                     <h2 className="text-[#0F172A] font-bold text-base mb-1 truncate">{item.name}</h2>
+                    
+                    {/* --- DESCRIPTION (2 Lines Clear Text) --- */}
+                    <p className="text-[#475569] text-[12px] leading-relaxed mb-3 line-clamp-2 h-[36px]">
+                      {item.description}
+                    </p>
+                    
+                    {/* --- RATINGS & REVIEWS --- */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[#F59E0B] text-sm font-black">★ {item.ratings}</span>
+                      <span className="text-[#94A3B8] text-[10px] font-bold">({item.numOfReviews} Reviews)</span>
+                    </div>
+
                     <p className="text-[#10B981] font-black text-xl mb-4">Rs {item.price}</p>
                     <button 
                       onClick={() => toggleCartHandler(item)}
                       className={`w-full py-2 rounded-lg text-xs font-bold text-white transition-all ${isInCart ? 'bg-[#EF4444]' : 'bg-[#F59E0B]'}`}
                     >
-                      {isInCart ? 'Remove' : 'Add to Cart'}
+                      {isInCart ? 'Remove from Cart' : 'Add to Cart'}
                     </button>
                   </div>
                 </div>
@@ -97,7 +107,7 @@ const Products = () => {
             })}
           </div>
 
-          {/* --- CUSTOM PAGINATION (Pure Logic, No Library Error) --- */}
+          {/* --- CUSTOM PAGINATION --- */}
           {productsCount > resultPerPage && (
             <div className="flex justify-center items-center gap-3 mt-16">
               <button 

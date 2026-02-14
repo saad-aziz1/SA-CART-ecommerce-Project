@@ -8,6 +8,7 @@ import cors from 'cors'
 import productRouter from './Routers/productRouter.js'
 import connectCloudinary from './config/cloudinary.js'
 import cartRouter from './Routers/cartRouter.js';
+import orderRouter from './Routers/orderRoutes.js'
 
 const app = express()
 app.use(cors({
@@ -21,6 +22,7 @@ app.use(cookieParser())
 app.use('/api/user', userRouter)
 app.use('/api/product',productRouter)
 app.use('/api/cart', cartRouter);
+app.use('/api/order', orderRouter);
 
 
 

@@ -21,6 +21,11 @@ import AllUsers from './admin/AllUsers.jsx'
 import Cart from './pages/Cart.jsx' 
 import Profile from './pages/Profile.jsx'
 import UpdateProfile from './pages/UpdateProfile.jsx'
+import Shipping from './pages/Shipping.jsx'
+import ConfirmOrder from './pages/ConfirmOrder.jsx'
+import OrderSuccess from './pages/OrderSuccess.jsx'
+import AllOrders from './admin/AllOrders.jsx'
+import ProcessOrder from './admin/ProcessOrder.jsx'
 
 // --- ROUTER CONFIGURATION ---
 const projectRouter = createBrowserRouter([
@@ -78,31 +83,53 @@ const projectRouter = createBrowserRouter([
         path: '/update-profile',
         element: <UpdateProfile />
       },
+      {
+        path: '/shipping',
+        element: <Shipping />
+      },
+      {
+        path: '/confirm-order',
+        element: <ConfirmOrder />
+      },
+      {
+        path: '/order/success',
+        element: <OrderSuccess />
+      },
 
       // --- PROTECTED ADMIN ROUTES ---
-      {
-        element: <ProtectedRoute isAdmin={true} />, // Protection Layer
-        children: [
-          {
-            path: '/admin-sidebar',
-            element: <AdminSidebar />,
-            children: [
-              {
-                path: 'add-product', 
-                element: <AddProduct />
-              },
-              {
-                path: 'products', 
-                element: <AllProducts />
-              },
-              {
-                path: 'users', 
-                element: <AllUsers />
-              }
-            ]
-          }
-        ]
-      }
+      // --- PROTECTED ADMIN ROUTES ---
+{
+  element: <ProtectedRoute isAdmin={true} />, 
+  children: [
+    {
+      path: '/admin-sidebar',
+      element: <AdminSidebar />,
+      children: [
+        {
+          path: 'add-product', 
+          element: <AddProduct />
+        },
+        {
+          path: 'products', 
+          element: <AllProducts />
+        },
+        {
+          path: 'users', 
+          element: <AllUsers />
+        },
+        {
+          path: 'orders', 
+          element: <AllOrders />
+        },
+        // --- PATH FIX YAHAN HY ---
+        {
+          path: 'order/:id', // 'admin/' hata diya taake path clean rahay
+          element: <ProcessOrder />
+        }
+      ]
+    }
+  ]
+}
     ]
   }
 ])
