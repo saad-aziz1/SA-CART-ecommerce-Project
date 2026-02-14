@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { getProductRequest, getProductDetailsSuccess, getProductsFail } from '../redux/productSlice';
-// --- CART ACTIONS & TOAST IMPORT ---
-// NAYA KAAM: addItemsToCart (Thunk) ko import kiya backend sync ke liye
-import { addItemsToCart, removeFromCart } from '../redux/cartSlice'; 
+import { getProductRequest, getProductDetailsSuccess, getProductsFail, newReviewReset } from '../redux/productSlice';
+import { submitReview, clearReviewErrors } from '../redux/actions/productActions.js';
+import { addItemsToCart, removeFromCart } from '../redux/cartSlice.js'; 
 import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
@@ -18,9 +17,12 @@ const ProductDetails = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [isWishlist, setIsWishlist] = useState(false); 
 
-  const { product, loading, error } = useSelector((state) => state.products);
+  // Review States
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
 
-  // --- 1: CART STATE & CHECK ---
+  const { product, loading, error, success, error: reviewError } = useSelector((state) => state.products);
+
   const { cartItems } = useSelector((state) => state.cart);
   const isInCart = cartItems.find((i) => i.product === id);
 
@@ -36,9 +38,20 @@ const ProductDetails = () => {
       }
     };
     fetchProductDetails();
-  }, [dispatch, id]);
 
-  // Quantity 
+    if (reviewError) {
+      toast.error(reviewError);
+      dispatch(clearReviewErrors());
+    }
+
+    if (success) {
+      toast.success("Review Submitted Successfully");
+      dispatch(newReviewReset());
+      setRating(0);
+      setComment("");
+    }
+  }, [dispatch, id, reviewError, success]);
+
   const increaseQty = () => { 
     if (product.stock <= quantity) return; 
     setQuantity(quantity + 1); 
@@ -48,17 +61,12 @@ const ProductDetails = () => {
     setQuantity(quantity - 1); 
   };
 
-  // --- 2: ADD / REMOVE HANDLER ---
   const toggleCartHandler = () => {
     if (isInCart) {
-      // Remove Logic
       dispatch(removeFromCart(id));
       toast.success("Removed from cart!");
     } else {
-      // Add Logic
       if (product.stock < 1) return toast.error("Out of Stock!");
-      
-      // NAYA KAAM: Ab addToCart ki jagah addItemsToCart (Thunk) use ho raha hy
       dispatch(addItemsToCart({
         product: product._id,
         name: product.name,
@@ -69,6 +77,20 @@ const ProductDetails = () => {
       }));
       toast.success("Added to Cart!");
     }
+  };
+
+  // Review Submit Handler
+  const reviewSubmitHandler = () => {
+    if (rating === 0) return toast.error("Please select a rating");
+    if (comment === "") return toast.error("Please write a comment");
+
+    const myForm = {
+      rating,
+      comment,
+      productId: id,
+    };
+
+    dispatch(submitReview(myForm));
   };
 
   if (loading) return (
@@ -90,40 +112,24 @@ const ProductDetails = () => {
     <div className="bg-[#F8FAFC] min-h-screen p-4 md:p-12 font-sans">
       <div className="max-w-7xl mx-auto"> 
         
-        {/* Gallery */}
+        {/* Gallery & Info Section (Same as before) */}
         <div className="bg-white rounded-[32px] shadow-sm border border-[#94A3B8]/10 overflow-hidden flex flex-col md:flex-row mb-10">
-          
           <div className="md:w-3/5 p-8 border-r border-[#94A3B8]/10 bg-white text-center">
             <div className="w-full h-[500px] flex items-center justify-center mb-8 bg-[#F8FAFC] rounded-2xl overflow-hidden">
-              <img 
-                src={mainImage || product?.images?.[0]?.url} 
-                className="max-h-full max-w-full object-contain transition-all duration-500 hover:scale-105" 
-                alt="Main" 
-              />
+              <img src={mainImage || product?.images?.[0]?.url} className="max-h-full max-w-full object-contain transition-all duration-500 hover:scale-105" alt="Main" />
             </div>
             <div className="flex gap-4 justify-center overflow-x-auto py-2">
               {product?.images?.map((img, i) => (
-                <img 
-                  key={i} 
-                  src={img.url} 
-                  onClick={() => setMainImage(img.url)} 
-                  className={`w-20 h-20 p-2 border-2 rounded-xl cursor-pointer transition-all 
-                  ${mainImage === img.url ? 'border-[#F59E0B] scale-110' : 'border-transparent bg-gray-50'}`} 
-                />
+                <img key={i} src={img.url} onClick={() => setMainImage(img.url)} className={`w-20 h-20 p-2 border-2 rounded-xl cursor-pointer transition-all ${mainImage === img.url ? 'border-[#F59E0B] scale-110' : 'border-transparent bg-gray-50'}`} />
               ))}
             </div>
           </div>
 
           <div className="md:w-2/5 p-10 flex flex-col justify-center bg-white">
-            <h1 className="text-[#020617] text-2xl md:text-3xl font-extrabold mb-4 uppercase leading-tight tracking-tight">
-              {product?.name}
-            </h1>
-            
+            <h1 className="text-[#020617] text-2xl md:text-3xl font-extrabold mb-4 uppercase leading-tight tracking-tight">{product?.name}</h1>
             <div className="flex items-center gap-4 mb-6">
               <p className="text-[#10B981] text-4xl font-black italic">Rs {product?.price}</p>
-              <div className="bg-[#F59E0B]/10 text-[#F59E0B] px-3 py-1 rounded-full text-sm font-bold">
-                ★ {product?.ratings}
-              </div>
+              <div className="bg-[#F59E0B]/10 text-[#F59E0B] px-3 py-1 rounded-full text-sm font-bold">★ {product?.ratings}</div>
             </div>
 
             <div className="mb-8 py-5 border-t border-b border-dashed border-[#94A3B8]/30">
@@ -131,8 +137,7 @@ const ProductDetails = () => {
               <ul className="grid gap-3">
                 {product?.features?.map((feat, i) => (
                   <li key={i} className="text-[#020617] text-sm flex items-center gap-3 font-semibold">
-                    <span className="bg-[#10B981]/20 text-[#10B981] w-5 h-5 rounded-full flex items-center justify-center text-[10px]">✔</span> 
-                    {feat}
+                    <span className="bg-[#10B981]/20 text-[#10B981] w-5 h-5 rounded-full flex items-center justify-center text-[10px]">✔</span> {feat}
                   </li>
                 )) || <li className="text-[#94A3B8] text-sm italic">Premium Quality Product</li>}
               </ul>
@@ -148,27 +153,16 @@ const ProductDetails = () => {
             </div>
 
             <div className="flex flex-col gap-3">
-              <button className="w-full bg-[#0F172A] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#1E293B]">
-                Buy It Now
-              </button>
+              <button className="w-full bg-[#0F172A] text-white py-4 rounded-2xl font-bold uppercase tracking-widest hover:bg-[#1E293B]">Buy It Now</button>
               <div className="flex gap-3">
-                <button 
-                  onClick={toggleCartHandler}
-                  className={`flex-[4] py-4 rounded-2xl font-bold uppercase transition-all duration-300 text-white
-                    ${isInCart ? 'bg-[#EF4444] hover:bg-[#B91C1C]' : 'bg-[#F59E0B] hover:bg-[#0F172A]'}`}
-                >
+                <button onClick={toggleCartHandler} className={`flex-[4] py-4 rounded-2xl font-bold uppercase transition-all duration-300 text-white ${isInCart ? 'bg-[#EF4444] hover:bg-[#B91C1C]' : 'bg-[#F59E0B] hover:bg-[#0F172A]'}`}>
                   {isInCart ? 'Remove from Cart' : 'Add to Cart'}
                 </button>
-                
-                <button 
-                  onClick={() => setIsWishlist(!isWishlist)} 
-                  className={`flex-1 border-2 rounded-2xl flex items-center justify-center text-xl transition-all ${isWishlist ? 'border-[#EF4444] bg-[#EF4444] text-white' : 'border-[#94A3B8]/20 text-[#0F172A]'}`}
-                >
+                <button onClick={() => setIsWishlist(!isWishlist)} className={`flex-1 border-2 rounded-2xl flex items-center justify-center text-xl transition-all ${isWishlist ? 'border-[#EF4444] bg-[#EF4444] text-white' : 'border-[#94A3B8]/20 text-[#0F172A]'}`}>
                   {isWishlist ? '❤' : '♡'}
                 </button>
               </div>
             </div>
-            
             <p className={`mt-6 text-xs font-bold uppercase flex items-center gap-2 ${product?.stock > 0 ? 'text-[#10B981]' : 'text-[#EF4444]'}`}>
               <span className={`w-2 h-2 rounded-full animate-pulse ${product?.stock > 0 ? 'bg-[#10B981]' : 'bg-[#EF4444]'}`}></span>
               {product?.stock > 0 ? `${product?.stock} items in stock` : "Out of Stock"}
@@ -176,12 +170,9 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* TrustBadges */}
+        {/* Trust Badges */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
-          {[
-            {L: "Free Shipping", I: "🚚"}, {L: "7 Days Return", I: "🔄"}, 
-            {L: "Verified Product", I: "✅"}, {L: "Secure Payment", I: "💳"}, {L: "24/7 Support", I: "🎧"}
-          ].map((item, i) => (
+          {[{L: "Free Shipping", I: "🚚"}, {L: "7 Days Return", I: "🔄"}, {L: "Verified Product", I: "✅"}, {L: "Secure Payment", I: "💳"}, {L: "24/7 Support", I: "🎧"}].map((item, i) => (
             <div key={i} className="bg-white p-6 rounded-[24px] border border-[#94A3B8]/10 flex flex-col items-center shadow-sm">
               <span className="text-3xl mb-3">{item.I}</span>
               <span className="text-[#020617] font-bold text-[10px] uppercase text-center tracking-widest">{item.L}</span>
@@ -189,15 +180,11 @@ const ProductDetails = () => {
           ))}
         </div>
 
-        {/* TabsDec&Reviews */}
+        {/* Tabs Section */}
         <div className="bg-white rounded-[32px] border border-[#94A3B8]/10 overflow-hidden shadow-sm mb-20">
           <div className="flex gap-10 px-10 pt-6 border-b border-[#94A3B8]/10">
             {["description", "reviews"].map((tab) => (
-              <button 
-                key={tab} 
-                onClick={() => setActiveTab(tab)}
-                className={`pb-5 font-bold uppercase text-xs tracking-[3px] transition-all relative ${activeTab === tab ? 'text-[#0F172A]' : 'text-[#94A3B8]'}`}
-              >
+              <button key={tab} onClick={() => setActiveTab(tab)} className={`pb-5 font-bold uppercase text-xs tracking-[3px] transition-all relative ${activeTab === tab ? 'text-[#0F172A]' : 'text-[#94A3B8]'}`}>
                 {tab} {tab === 'reviews' && `(${product?.numOfReviews})`}
                 {activeTab === tab && <div className="absolute bottom-0 left-0 w-full h-[4px] bg-[#F59E0B] rounded-full"></div>}
               </button>
@@ -206,13 +193,47 @@ const ProductDetails = () => {
 
           <div className="p-10 md:p-14 min-h-[300px]">
             {activeTab === "description" ? (
-              <div className="text-[#475569] leading-loose text-base md:text-lg whitespace-pre-line max-w-4xl italic">
-                {product?.description}
-              </div>
+              <div className="text-[#475569] leading-loose text-base md:text-lg whitespace-pre-line max-w-4xl italic">{product?.description}</div>
             ) : (
-              <div className="text-center py-20 bg-[#F8FAFC] rounded-3xl">
-                <div className="text-5xl mb-4 text-[#F59E0B]">⭐</div>
-                <p className="text-[#94A3B8] text-sm font-bold uppercase tracking-widest">No reviews yet for this product</p>
+              <div className="max-w-4xl mx-auto">
+                {/* Review Form */}
+                <div className="bg-[#F8FAFC] p-8 rounded-3xl mb-10 border border-[#94A3B8]/10">
+                  <h3 className="text-lg font-black uppercase tracking-widest mb-6">Write a Review</h3>
+                  <div className="flex gap-2 mb-4">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button key={star} onClick={() => setRating(star)} className={`text-3xl transition-all ${star <= rating ? "text-[#F59E0B]" : "text-[#94A3B8]/40"}`}>★</button>
+                    ))}
+                  </div>
+                  <textarea 
+                    className="w-full p-5 rounded-2xl border border-[#94A3B8]/20 focus:outline-none focus:border-[#F59E0B] min-h-[120px]" 
+                    placeholder="Your feedback matters..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                  ></textarea>
+                  <button onClick={reviewSubmitHandler} className="mt-4 bg-[#0F172A] text-white px-10 py-3 rounded-full font-bold uppercase text-xs tracking-widest hover:bg-[#F59E0B] transition-all">Submit Review</button>
+                </div>
+
+                {/* Reviews List */}
+                {product.reviews && product.reviews[0] ? (
+                  <div className="grid gap-6">
+                    {product.reviews.map((rev) => (
+                      <div key={rev._id} className="border-b border-[#94A3B8]/10 pb-6">
+                        <div className="flex items-center gap-4 mb-2">
+                          <div className="w-10 h-10 bg-[#0F172A] text-white flex items-center justify-center rounded-full font-bold uppercase">{rev.name[0]}</div>
+                          <div>
+                            <p className="font-bold text-[#020617]">{rev.name}</p>
+                            <p className="text-[#F59E0B] text-xs">{"★".repeat(rev.rating)}{"☆".repeat(5-rev.rating)}</p>
+                          </div>
+                        </div>
+                        <p className="text-[#475569] text-sm italic pl-14">"{rev.comment}"</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-[#94A3B8] text-sm font-bold uppercase tracking-widest">No reviews yet. Be the first!</p>
+                  </div>
+                )}
               </div>
             )}
           </div>

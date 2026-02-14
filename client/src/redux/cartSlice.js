@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios'; // Naya kaam: axios import kiya
+import axios from 'axios';
 
 // 1: LocalStorage se purana data nikalna
 const initialCartItems = localStorage.getItem("cartItems")
@@ -12,13 +12,13 @@ const cartSlice = createSlice({
     cartItems: initialCartItems,
   },
   reducers: {
-    // NAYA KAAM: Backend se pura cart load karne ke liye
+    // Backend se pura cart load karne ke liye
     setCartItems: (state, action) => {
       state.cartItems = action.payload;
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
 
-    // 2: Add to Cart Logic (Same as your original)
+    // 2: Add to Cart Logic
     addToCart: (state, action) => {
       const item = action.payload;
       const isItemExist = state.cartItems.find((i) => i.product === item.product);
@@ -33,7 +33,7 @@ const cartSlice = createSlice({
       localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
 
-    // 3: Remove from Cart (Same as your original)
+    // 3: Remove from Cart
     removeFromCart: (state, action) => {
       const idToRemove = String(action.payload);
       state.cartItems = state.cartItems.filter(
@@ -44,10 +44,9 @@ const cartSlice = createSlice({
   },
 });
 
-// Naming wahi hain jo aapki file mein thin
 export const { addToCart, removeFromCart, setCartItems } = cartSlice.actions;
 
-// --- NAYA KAAM: THUNK ACTIONS FOR BACKEND SYNC ---
+// --- THUNK ACTIONS FOR BACKEND SYNC ---
 
 // A: Database mein save karne ke liye
 export const addItemsToCart = (item) => async (dispatch) => {
@@ -72,6 +71,17 @@ export const fetchCart = () => async (dispatch) => {
   } catch (error) {
     console.error("Fetch Cart Error:", error);
   }
+};
+
+// C: Database se item remove karne ke liye (NEW FIX)
+export const removeItemsFromCart = (id) => async (dispatch) => {
+    dispatch(removeFromCart(id)); // Pehle local update
+    try {
+        // Backend ko batana ke ye product delete kr do
+        await axios.delete(`http://localhost:3000/api/cart/remove/${id}`, { withCredentials: true });
+    } catch (error) {
+        console.error("Remove Sync Error:", error);
+    }
 };
 
 export default cartSlice.reducer;

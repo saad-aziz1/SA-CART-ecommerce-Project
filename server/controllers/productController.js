@@ -129,3 +129,60 @@ export const deleteProduct = async (req, res) => {
         });
     }
 };
+
+// productController.js
+
+// --- CREATE NEW REVIEW OR UPDATE THE REVIEW ---
+export const createProductReview = async (req, res) => {
+  try {
+    const { rating, comment, productId } = req.body;
+
+    const review = {
+      user: req.user._id,
+      name: `${req.user.firstName} ${req.user.lastName}`,
+      rating: Number(rating),
+      comment,
+    };
+
+    const product = await Product.findById(productId);
+
+    // Check kro kya user ne pehle review diya hy?
+    const isReviewed = product.reviews.find(
+      (rev) => rev.user.toString() === req.user._id.toString()
+    );
+
+    if (isReviewed) {
+      // Agar pehle review mojud hy, toh usay update kro
+      product.reviews.forEach((rev) => {
+        if (rev.user.toString() === req.user._id.toString()) {
+          rev.rating = rating;
+          rev.comment = comment;
+        }
+      });
+    } else {
+      // Agar naya review hy, toh array me push kro
+      product.reviews.push(review);
+      product.numOfReviews = product.reviews.length;
+    }
+
+    // Average Rating calculate krna
+    let avg = 0;
+    product.reviews.forEach((rev) => {
+      avg += rev.rating;
+    });
+
+    product.ratings = avg / product.reviews.length;
+
+    await product.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: "Review added successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
