@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 
 const AllOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -29,6 +29,50 @@ const AllOrders = () => {
     }
   };
 
+  // --- MODERN DELETE HANDLER WITH TOAST CONFIRMATION ---
+  const deleteOrderHandler = (id) => {
+    toast.custom((t) => (
+      <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-white shadow-2xl rounded-2xl pointer-events-auto flex flex-col p-6 border border-[#94A3B8]/20`}>
+        <div className="flex-1">
+          <p className="text-sm font-black text-[#0F172A] uppercase tracking-widest mb-1">Confirm Deletion</p>
+          <p className="text-xs font-bold text-[#94A3B8]">Are you sure you want to delete this order permanently?</p>
+        </div>
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={() => {
+              executeDelete(id);
+              toast.dismiss(t.id);
+            }}
+            className="flex-1 bg-[#EF4444] text-white py-2 rounded-xl text-xs font-black uppercase hover:bg-red-700 transition-all"
+          >
+            Yes, Delete
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="flex-1 bg-[#F8FAFC] text-[#0F172A] py-2 rounded-xl text-xs font-black uppercase border border-[#94A3B8]/20 hover:bg-gray-100 transition-all"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ), { duration: 5000 });
+  };
+
+  const executeDelete = async (id) => {
+    try {
+      const config = { withCredentials: true };
+      const { data } = await axios.delete(`http://localhost:3000/api/order/admin/order/${id}`, config);
+
+      if (data.success) {
+        toast.success("Order Deleted Successfully");
+        setOrders(orders.filter((order) => order._id !== id));
+        setOrdersCount((prev) => prev - 1);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Delete failed");
+    }
+  };
+
   useEffect(() => {
     getAllOrders(currentPage);
   }, [currentPage]);
@@ -36,7 +80,7 @@ const AllOrders = () => {
   const totalPages = Math.ceil(ordersCount / resultPerPage);
 
   return (
-    <div className="p-4 sm:p-8 bg-[#F8FAFC] min-h-screen font-sans">
+    <div className="p-4 sm:p-8 bg-[#F8FAFC] min-h-screen font-sans text-[#020617]">
       <div className="flex justify-between items-center mb-10">
         <div>
           <h1 className="text-3xl font-black text-[#0F172A] tracking-tighter uppercase">All Orders</h1>
@@ -64,7 +108,6 @@ const AllOrders = () => {
                 <tr><td colSpan="5" className="text-center py-10 font-bold text-[#94A3B8]">Loading...</td></tr>
               ) : (
                 orders.map((order) => {
-                  // Har order ki total quantity calculate karna
                   const totalQty = order.orderItems.reduce((acc, item) => acc + item.quantity, 0);
 
                   return (
@@ -80,9 +123,17 @@ const AllOrders = () => {
                       <td className="px-6 py-4 font-bold text-[#0F172A] text-center">{totalQty}</td>
                       <td className="px-6 py-4 font-black text-[#10B981]">Rs {order.totalPrice}</td>
                       <td className="px-6 py-4 text-right">
-                        <Link to={`/admin-sidebar/order/${order._id}`} className="text-[#0F172A] hover:text-[#F59E0B] font-black uppercase text-xs">
-                          Details ➔
-                        </Link>
+                        <div className="flex justify-end items-center gap-4">
+                          <Link to={`/admin-sidebar/order/${order._id}`} className="text-[#0F172A] hover:text-[#F59E0B] font-black uppercase text-xs transition-all">
+                            Details ➔
+                          </Link>
+                          <button 
+                            onClick={() => deleteOrderHandler(order._id)}
+                            className="text-[#EF4444] hover:scale-110 transition-all p-1"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

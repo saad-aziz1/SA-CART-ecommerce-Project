@@ -124,7 +124,7 @@ const Profile = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <Link to="/orders" className="flex items-center justify-center gap-2 bg-[#10B981] text-white py-3 rounded-xl font-bold text-sm uppercase shadow-md hover:opacity-90 transition-all">
+              <Link to="/my-orders" className="flex items-center justify-center gap-2 bg-[#10B981] text-white py-3 rounded-xl font-bold text-sm uppercase shadow-md hover:opacity-90 transition-all">
                 <ShoppingBag className="w-4 h-4" /> My Orders
               </Link>
               <Link to="/password/update" className="flex items-center justify-center gap-2 bg-[#0F172A] text-white py-3 rounded-xl font-bold text-sm uppercase shadow-md hover:bg-[#1E293B] transition-all">

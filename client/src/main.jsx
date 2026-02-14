@@ -26,6 +26,7 @@ import ConfirmOrder from './pages/ConfirmOrder.jsx'
 import OrderSuccess from './pages/OrderSuccess.jsx'
 import AllOrders from './admin/AllOrders.jsx'
 import ProcessOrder from './admin/ProcessOrder.jsx'
+import MyOrders from './pages/myOrders.jsx'
 
 // --- ROUTER CONFIGURATION ---
 const projectRouter = createBrowserRouter([
@@ -95,8 +96,12 @@ const projectRouter = createBrowserRouter([
         path: '/order/success',
         element: <OrderSuccess />
       },
+      {
+        path: '/my-orders',
+        element: <MyOrders />
+      },
 
-      // --- PROTECTED ADMIN ROUTES ---
+      
       // --- PROTECTED ADMIN ROUTES ---
 {
   element: <ProtectedRoute isAdmin={true} />, 

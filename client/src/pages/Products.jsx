@@ -97,7 +97,7 @@ const Products = () => {
                     <p className="text-[#10B981] font-black text-xl mb-4">Rs {item.price}</p>
                     <button 
                       onClick={() => toggleCartHandler(item)}
-                      className={`w-full py-2 rounded-lg text-xs font-bold text-white transition-all ${isInCart ? 'bg-[#EF4444]' : 'bg-[#F59E0B]'}`}
+                      className={`w-full py-2 rounded-lg text-xs font-bold   text-white transition-all ${isInCart ? 'bg-[#EF4444]' : 'bg-[#F59E0B] cursor-pointer'}`}
                     >
                       {isInCart ? 'Remove from Cart' : 'Add to Cart'}
                     </button>
