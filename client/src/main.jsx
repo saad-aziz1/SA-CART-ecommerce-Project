@@ -44,6 +44,11 @@ const projectRouter = createBrowserRouter([
         path: '/products',
         element: <Products />
       },
+      // --- NAYA ROUTE: Search keyword ke liye ---
+      {
+        path: '/products/:keyword',
+        element: <Products />
+      },
       {
         path: '/verify',
         element: <VerifyMsg />

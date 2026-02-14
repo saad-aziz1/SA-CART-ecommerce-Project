@@ -1,5 +1,6 @@
 import Product from "../models/productModels.js"
 import {v2 as cloudinary} from 'cloudinary'
+import ApiFeatures from "../utils/apiFeatures.js"
 
 // createNewProduct(Admin)
 export const createProduct = async (req, res) => {
@@ -54,19 +55,40 @@ export const createProduct = async (req, res) => {
     }
 }
 
-//allProductsAxios
-export const getAllProducts = async (req,res) => {
+// --- GET ALL PRODUCTS (Enhanced with Search & Filter) ---
+export const getAllProducts = async (req, res) => {
     try {
-        const products = await Product.find()
+        const resultPerPage = 8; // Ek page par kitne products dikhane hain
+        const productsCount = await Product.countDocuments(); // Database me total products kitne hain
 
-        res.status(201).json({
-            success:true,
-            products
-        })  
+        // ApiFeatures ka use krty huay search aur filter apply krna
+        const apiFeature = new ApiFeatures(Product.find(), req.query)
+            .search()
+            .filter();
+
+        // Pehle filtered products ka count lety hain pagination se pehle
+        let products = await apiFeature.query;
+        const filteredProductsCount = products.length;
+
+        // Ab pagination apply krna
+        apiFeature.pagination(resultPerPage);
+
+        // Final products list hasil krna
+        products = await apiFeature.query.clone();
+
+        res.status(200).json({
+            success: true,
+            products,
+            productsCount,
+            resultPerPage,
+            filteredProductsCount, // Ye frontend pr pagination ke liye lazmi hy
+        });
+
     } catch (error) {
         res.status(500).json({
-            message:error.message
-        })
+            success: false,
+            message: error.message
+        });
     }
 }
 
@@ -130,7 +152,6 @@ export const deleteProduct = async (req, res) => {
     }
 };
 
-// productController.js
 
 // --- CREATE NEW REVIEW OR UPDATE THE REVIEW ---
 export const createProductReview = async (req, res) => {
