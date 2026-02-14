@@ -1,18 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Trash2 } from 'lucide-react'; 
+import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react'; 
 import { toast } from 'react-hot-toast';
 
 const AllProducts = () => {
-    // 1: Initial state ko hamesha [] rakhen
     const [products, setProducts] = useState([]); 
     const [loading, setLoading] = useState(true);
+    
+    // --- PAGINATION STATES ---
+    const [currentPage, setCurrentPage] = useState(1);
+    const [productsCount, setProductsCount] = useState(0);
+    const [resultPerPage, setResultPerPage] = useState(8);
 
     const fetchProducts = async () => {
         try {
-            const { data } = await axios.get('http://localhost:3000/api/product/products'); 
-            // 2: Yahan check karen ke data.products hi aa raha hy
+            setLoading(true);
+            // Port 3000 use ho raha hy aur page number query me bhej rahe hain
+            const { data } = await axios.get(`http://localhost:3000/api/product/products?page=${currentPage}`); 
+            
             setProducts(data.products || []); 
+            setProductsCount(data.productsCount || 0);
+            setResultPerPage(data.resultPerPage || 8);
             setLoading(false);
         } catch (error) {
             console.error(error);
@@ -23,7 +31,6 @@ const AllProducts = () => {
 
     // Delete Handler
     const deleteHandler = async (id) => {
-        // Confirmation Toast (Action-based toast logic)
         toast((t) => (
             <span>
                 Are you sure you want to delete this product?
@@ -49,10 +56,7 @@ const AllProducts = () => {
                     >
                         Delete
                     </button>
-                    <button 
-                        onClick={() => toast.dismiss(t.id)}
-                        className="bg-[#94A3B8] text-white px-3 py-1 rounded-md text-xs font-bold"
-                    >
+                    <button onClick={() => toast.dismiss(t.id)} className="bg-[#94A3B8] text-white px-3 py-1 rounded-md text-xs font-bold">
                         Cancel
                     </button>
                 </div>
@@ -60,9 +64,12 @@ const AllProducts = () => {
         ), { duration: 5000 });
     };
 
+    // --- PAGINATION LOGIC ---
+    const totalPages = Math.ceil(productsCount / resultPerPage);
+
     useEffect(() => {
         fetchProducts();
-    }, []);
+    }, [currentPage]); // Jab bhi currentPage change ho, data fetch ho
 
     if (loading) return <div className="p-10 text-center font-bold text-[#0F172A]">Loading Products...</div>;
 
@@ -70,7 +77,7 @@ const AllProducts = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-[#94A3B8]/20 overflow-hidden">
             <div className="p-6 border-b border-[#94A3B8]/10 flex justify-between items-center">
                 <h2 className="text-xl font-black text-[#020617]">
-                    ALL PRODUCTS ({products?.length || 0})
+                    ALL PRODUCTS ({productsCount})
                 </h2>
             </div>
 
@@ -121,6 +128,43 @@ const AllProducts = () => {
                     </tbody>
                 </table>
             </div>
+
+            {/* --- PAGINATION UI --- */}
+            {productsCount > resultPerPage && (
+                <div className="p-6 border-t border-[#94A3B8]/10 flex justify-center items-center gap-2">
+                    <button 
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        className="p-2 border rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                        <ChevronLeft size={20} />
+                    </button>
+
+                    <div className="flex gap-1">
+                        {[...Array(totalPages)].map((_, index) => (
+                            <button
+                                key={index + 1}
+                                onClick={() => setCurrentPage(index + 1)}
+                                className={`w-10 h-10 rounded-lg font-bold transition-all text-sm ${
+                                    currentPage === index + 1 
+                                    ? 'bg-[#0F172A] text-white shadow-md' 
+                                    : 'bg-white text-[#0F172A] border border-[#94A3B8]/20 hover:bg-gray-50'
+                                }`}
+                            >
+                                {index + 1}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button 
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        className="p-2 border rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

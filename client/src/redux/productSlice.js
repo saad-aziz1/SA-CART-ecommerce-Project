@@ -5,21 +5,28 @@ const initialState = {
     product: {},
     loading: false,
     error: null,
-    isUpdated: false // Naya review check karne ke liye
+    // --- PAGINATION STATES ADDED ---
+    productsCount: 0,
+    resultPerPage: 0,
+    filteredProductsCount: 0,
+    isUpdated: false 
 }
 
 const productSlice = createSlice({
     name: "products",
     initialState,   
     reducers: {
-        
         getProductRequest: (state) => {
             state.loading = true;
         },
 
         getProductsSuccess: (state, action) => {
             state.loading = false;
+            // Backend se pura data (action.payload) mil raha hai
             state.products = action.payload.products;
+            state.productsCount = action.payload.productsCount;
+            state.resultPerPage = action.payload.resultPerPage;
+            state.filteredProductsCount = action.payload.filteredProductsCount;
         },
 
         getProductDetailsSuccess: (state, action) => {
@@ -34,7 +41,7 @@ const productSlice = createSlice({
 
         newReviewSuccess: (state, action) => {
             state.loading = false;
-            state.isUpdated = action.payload; // success: true aye ga
+            state.isUpdated = action.payload; 
         },
 
         newReviewFail: (state, action) => {
@@ -45,7 +52,6 @@ const productSlice = createSlice({
         newReviewReset: (state) => {
             state.isUpdated = false;
         },
-        // ---------------------------
 
         getProductsFail: (state, action) => {
             state.loading = false;
@@ -62,10 +68,10 @@ export const {
     getProductRequest, 
     getProductsSuccess, 
     getProductDetailsSuccess,
-    newReviewRequest,    // export kiya
-    newReviewSuccess,    // export kiya
-    newReviewFail,       // export kiya
-    newReviewReset,      // export kiya
+    newReviewRequest,
+    newReviewSuccess,
+    newReviewFail,
+    newReviewReset,
     getProductsFail, 
     clearErrors 
 } = productSlice.actions;
