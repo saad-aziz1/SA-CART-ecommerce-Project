@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-// axios ko hata kar api utility import ki
+// Path aur casing check karen: agar file ka naam api.js hy toh ye sahi hy
 import api from '../utils/api'; 
 import toast from 'react-hot-toast';
 import { KeyRound, ShieldCheck, Lock, CheckCircle } from 'lucide-react';
@@ -10,7 +10,6 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
-  // Forgot password page se email state mein aa rahi hy
   const email = location.state?.email || "";
 
   const [formData, setFormData] = useState({
@@ -30,7 +29,7 @@ const ResetPassword = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Production ready call: local host hata diya aur api instance use kiya
+      // Production ready call using the centralized api instance
       const res = await api.post("/api/user/reset-password", {
         email,
         otp: formData.otp,
@@ -42,7 +41,6 @@ const ResetPassword = () => {
         navigate('/login');
       }
     } catch (error) {
-      // toast message as per your preference
       toast.error(error.response?.data?.message || 'Invalid OTP or data.');
     } finally {
       setIsLoading(false);
