@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 // axios ki jagah apna banaya hua api instance import kiya
 import api from '../utils/api'; 
-import { Trash2, ChevronLeft, ChevronRight } from 'lucide-center'; 
+import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react'; 
 import { toast } from 'react-hot-toast';
 
 const AllProducts = () => {
