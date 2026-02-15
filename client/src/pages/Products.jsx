@@ -43,9 +43,11 @@ const Products = () => {
       try {
         dispatch(getProductRequest());
         
-        // FIX: Remove the leading slash so it appends to baseURL properly
-        let link = `api/product/products?page=${currentPage}`;
+        // Forced Absolute URL for Production
+        const backendBase = import.meta.env.VITE_BACKEND_URL;
+        let link = `${backendBase}/api/product/products?page=${currentPage}`;
 
+        // Axios request using full absolute link
         const { data } = await api.get(link);
         
         dispatch(getProductsSuccess(data)); 
