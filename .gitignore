@@ -1,2 +1,10 @@
+# Node Modules (Dono folders ke ignore karega)
+node_modules/
+
+# Secrets (Backend ki .env aur agar frontend mein hy toh wo bhi)
 .env
-node_modules
+.env.local
+
+# Build folders
+dist/
+build/
