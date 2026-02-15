@@ -1,15 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import api from "../utils/api"; // Axios instance use kiya
 
 // --- LOAD USER THUNK ---
 export const loadUser = createAsyncThunk(
   "auth/loadUser",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(
-        "http://localhost:3000/api/user/me",
-        { withCredentials: true }
-      );
+      // BaseURL aur withCredentials ab 'api' instance handle kar raha hy
+      const { data } = await api.get("/api/user/me"); 
       return data.user;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Failed to load user");
@@ -24,11 +22,11 @@ export const updateProfile = createAsyncThunk(
     try {
       const config = {
         headers: { "Content-Type": "application/json" }, // ✅ JSON friendly
-        withCredentials: true,
       };
 
-      const { data } = await axios.put(
-        "http://localhost:3000/api/user/me/update",
+      // localhost ka link khatam, sirf route path rakha hy
+      const { data } = await api.put(
+        "/api/user/me/update",
         userData,
         config
       );

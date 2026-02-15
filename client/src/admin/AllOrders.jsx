@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../utils/api"; // Axios instance use kiya
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
@@ -14,8 +14,8 @@ const AllOrders = () => {
   const getAllOrders = async (page = 1) => {
     try {
       setLoading(true);
-      const config = { withCredentials: true };
-      const { data } = await axios.get(`http://localhost:3000/api/order/admin/orders?page=${page}`, config);
+      // Localhost aur withCredentials nikaal kar api instance use kiya
+      const { data } = await api.get(`/api/order/admin/orders?page=${page}`);
       
       if (data.success) {
         setOrders(data.orders);
@@ -60,8 +60,8 @@ const AllOrders = () => {
 
   const executeDelete = async (id) => {
     try {
-      const config = { withCredentials: true };
-      const { data } = await axios.delete(`http://localhost:3000/api/order/admin/order/${id}`, config);
+      // API call using the custom instance
+      const { data } = await api.delete(`/api/order/admin/order/${id}`);
 
       if (data.success) {
         toast.success("Order Deleted Successfully");

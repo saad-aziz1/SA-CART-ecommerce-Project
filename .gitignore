@@ -4,7 +4,7 @@ node_modules/
 # Secrets (Backend ki .env aur agar frontend mein hy toh wo bhi)
 .env
 .env.local
-
+.env.production
 # Build folders
 dist/
 build/

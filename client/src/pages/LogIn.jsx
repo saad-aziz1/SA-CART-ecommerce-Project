@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// axios ko replace kiya central api instance se
+import api from '../utils/api'; 
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock, LogIn as LoginIcon } from 'lucide-react';
 // Firebase imports for Google Login
@@ -11,11 +12,9 @@ import { useDispatch } from 'react-redux';
 import { setAuthUser } from '../redux/authSlice';
 
 const LogIn = () => {
-  // Logic Hooks
   const dispatch = useDispatch(); 
   const navigate = useNavigate();
 
-  // State Variables (Missing in your previous snippet)
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsloading] = useState(false);
   const [formData, setFormData] = useState({
@@ -23,7 +22,6 @@ const LogIn = () => {
     password: "",
   });
 
-  // Input Handler
   const handleForm = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -34,10 +32,10 @@ const LogIn = () => {
     e.preventDefault();
     setIsloading(true);
     try {
-      const res = await axios.post("http://localhost:3000/api/user/login", formData, { withCredentials: true });
+      // api instance production URL automatically handle karega
+      const res = await api.post("/api/user/login", formData);
       
       if (res.status === 200 || res.status === 201) {
-        // Redux update logic
         dispatch(setAuthUser(res.data.user)); 
         toast.success('Logged in successfully!');
         navigate('/'); 
@@ -56,16 +54,15 @@ const LogIn = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const res = await axios.post(
-        "http://localhost:3000/api/user/googlelogin",
+      // Google login ke liye bhi api instance use kiya
+      const res = await api.post(
+        "/api/user/googlelogin",
         {
           name: user.displayName,
           email: user.email,
-        },
-        { withCredentials: true }
+        }
       );
 
-      // Dispatching to Redux and LocalStorage
       dispatch(setAuthUser(res.data.user)); 
       toast.success("Google Login Successful!");
       navigate("/");

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// axios ko replace kiya central api instance se
+import api from '../utils/api'; 
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { Package, ChevronDown, ChevronUp, Clock, ShoppingCart, MapPin, CreditCard, User } from 'lucide-react';
@@ -7,18 +8,19 @@ import { Package, ChevronDown, ChevronUp, Clock, ShoppingCart, MapPin, CreditCar
 const MyOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedOrder, setExpandedOrder] = useState(null); // Toggle detail state
+  const [expandedOrder, setExpandedOrder] = useState(null); 
 
   const fetchMyOrders = async () => {
     try {
       setLoading(true);
-      const config = { withCredentials: true };
-      const { data } = await axios.get('http://localhost:3000/api/order/me', config);
+      // api instance production URL aur credentials khud handle karega
+      const { data } = await api.get('/api/order/me');
       if (data.success) {
         setOrders(data.orders);
       }
       setLoading(false);
     } catch (error) {
+      // toast message in English as requested
       toast.error(error.response?.data?.message || "Could not fetch your orders");
       setLoading(false);
     }
@@ -96,7 +98,6 @@ const MyOrders = () => {
                 <div className="bg-[#F8FAFC] border-t border-[#94A3B8]/10 p-8 animate-in fade-in slide-in-from-top-4 duration-300">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     
-                    {/* Left: Shipping & Payment */}
                     <div className="space-y-6">
                       <div className="bg-white p-6 rounded-3xl border border-[#94A3B8]/10 shadow-sm">
                         <h4 className="text-[11px] font-black text-[#0F172A] uppercase tracking-widest mb-4 flex items-center gap-2">
@@ -123,7 +124,6 @@ const MyOrders = () => {
                       </div>
                     </div>
 
-                    {/* Right: Items List */}
                     <div className="bg-white p-6 rounded-3xl border border-[#94A3B8]/10 shadow-sm">
                       <h4 className="text-[11px] font-black text-[#0F172A] uppercase tracking-widest mb-4">Ordered Items</h4>
                       <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// Custom api instance import kiya
+import api from '../utils/api'; 
 import { Trash2, User } from 'lucide-react'; 
 import { toast } from 'react-hot-toast';
 
@@ -10,8 +11,8 @@ const AllUsers = () => {
 
     const fetchUsers = async () => {
         try {
-            // Backend se users mangwana (withCredentials token ke liye zaroori hy)
-            const { data } = await axios.get('http://localhost:3000/api/user/admin/users', { withCredentials: true }); 
+            // Relative path use kiya, baseURL aur credentials api instance handle karega
+            const { data } = await api.get('/api/user/admin/users'); 
             setUsers(data.users || []); 
             setLoading(false);
         } catch (error) {
@@ -24,15 +25,15 @@ const AllUsers = () => {
     // --- Role Update Handler ---
     const updateRoleHandler = async (id, newRole) => {
         try {
-            const { data } = await axios.put(
-                `http://localhost:3000/api/user/admin/user/${id}`,
-                { role: newRole },
-                { withCredentials: true }
+            // User role update karne ke liye api.put call
+            const { data } = await api.put(
+                `/api/user/admin/user/${id}`,
+                { role: newRole }
             );
 
             if (data.success) {
                 toast.success("User Role Updated!");
-                fetchUsers(); // List refresh karna taake naya role table mein nazar aaye
+                fetchUsers(); // List refresh
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Error updating role");
@@ -49,10 +50,8 @@ const AllUsers = () => {
                         onClick={async () => {
                             toast.dismiss(t.id);
                             try {
-                                const { data } = await axios.delete(
-                                    `http://localhost:3000/api/user/admin/user/${id}`, 
-                                    { withCredentials: true }
-                                );
+                                // User delete karne ke liye api.delete call
+                                const { data } = await api.delete(`/api/user/admin/user/${id}`);
                                 if (data.success) {
                                     toast.success("User Deleted Successfully!");
                                     fetchUsers(); 
@@ -118,7 +117,6 @@ const AllUsers = () => {
                                         {user.email}
                                     </td>
                                     <td className="px-6 py-4">
-                                        {/* Dropdown for Role Update */}
                                         <select
                                             value={user.role}
                                             onChange={(e) => updateRoleHandler(user._id, e.target.value)}

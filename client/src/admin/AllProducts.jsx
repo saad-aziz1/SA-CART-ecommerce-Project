@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Trash2, ChevronLeft, ChevronRight } from 'lucide-react'; 
+// axios ki jagah apna banaya hua api instance import kiya
+import api from '../utils/api'; 
+import { Trash2, ChevronLeft, ChevronRight } from 'lucide-center'; 
 import { toast } from 'react-hot-toast';
 
 const AllProducts = () => {
@@ -15,8 +16,8 @@ const AllProducts = () => {
     const fetchProducts = async () => {
         try {
             setLoading(true);
-            // Port 3000 use ho raha hy aur page number query me bhej rahe hain
-            const { data } = await axios.get(`http://localhost:3000/api/product/products?page=${currentPage}`); 
+            // localhost hata kar sirf endpoint likha, api instance base URL khud lagaye ga
+            const { data } = await api.get(`/api/product/products?page=${currentPage}`); 
             
             setProducts(data.products || []); 
             setProductsCount(data.productsCount || 0);
@@ -39,10 +40,9 @@ const AllProducts = () => {
                         onClick={async () => {
                             toast.dismiss(t.id);
                             try {
-                                const { data } = await axios.delete(
-                                    `http://localhost:3000/api/product/admin/product/${id}`, 
-                                    { withCredentials: true }
-                                );
+                                // delete request ke liye bhi api instance use kiya
+                                const { data } = await api.delete(`/api/product/admin/product/${id}`);
+                                
                                 if (data.success) {
                                     toast.success("Product Deleted Successfully!");
                                     fetchProducts(); 
@@ -69,7 +69,7 @@ const AllProducts = () => {
 
     useEffect(() => {
         fetchProducts();
-    }, [currentPage]); // Jab bhi currentPage change ho, data fetch ho
+    }, [currentPage]); 
 
     if (loading) return <div className="p-10 text-center font-bold text-[#0F172A]">Loading Products...</div>;
 

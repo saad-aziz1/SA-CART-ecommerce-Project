@@ -1,5 +1,5 @@
-// productActions.js
-import axios from 'axios';
+
+import api from '../../utils/api'; // Axios instance 
 import { 
     newReviewRequest, 
     newReviewSuccess, 
@@ -14,13 +14,13 @@ export const submitReview = (reviewData) => async (dispatch) => {
         dispatch(newReviewRequest());
 
         const config = {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true // Cookies (Token) bhejny ke liye
+            headers: { "Content-Type": "application/json" }
+            // withCredentials yahan se hata diya kyunke api.js mein pehle se hy
         };
 
-        // 2: API Call (PUT method)
-        const { data } = await axios.put(
-            `http://localhost:3000/api/product/review`, 
+        // 2: API Call (PUT method) - URL ab live backend se connect hy
+        const { data } = await api.put(
+            `/api/product/review`, 
             reviewData, 
             config
         );

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// axios ko replace kiya central api instance se
+import api from '../utils/api'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'; 
 import toast from 'react-hot-toast';
@@ -11,10 +12,10 @@ import { addToCart, removeFromCart } from '../redux/cartSlice';
 const Products = () => {
   const dispatch = useDispatch();
   
-  // --- STATE FOR PAGINATION ---
+  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Redux se data nikalna
+  // Redux Data
   const { 
     products, 
     loading, 
@@ -25,10 +26,10 @@ const Products = () => {
 
   const { cartItems } = useSelector((state) => state.cart);
 
-  // Logic: Total kitne pages banenge?
+  // Calculate total pages
   const totalPages = Math.ceil(productsCount / resultPerPage);
 
-  // Cart Add/Remove Logic
+  // Cart Handler
   const toggleCartHandler = (item) => {
     const isExist = cartItems.find((i) => i.product === item._id);
     if (isExist) {
@@ -49,9 +50,11 @@ const Products = () => {
       try {
         dispatch(getProductRequest());
         
-        let link = `http://localhost:3000/api/product/products?page=${currentPage}`;
+        // Production ready relative link
+        let link = `/api/product/products?page=${currentPage}`;
 
-        const { data } = await axios.get(link, { withCredentials: true });
+        // Central api utility handles base URL and credentials
+        const { data } = await api.get(link);
         
         dispatch(getProductsSuccess(data)); 
       } catch (err) {
@@ -59,6 +62,8 @@ const Products = () => {
       }
     };
     fetchProducts();
+    // Scroll to top when page changes
+    window.scrollTo(0, 0);
   }, [dispatch, currentPage]);
 
   return (
@@ -83,12 +88,10 @@ const Products = () => {
                   <div className="p-4 flex flex-col flex-grow">
                     <h2 className="text-[#0F172A] font-bold text-base mb-1 truncate">{item.name}</h2>
                     
-                    {/* --- DESCRIPTION (2 Lines Clear Text) --- */}
                     <p className="text-[#475569] text-[12px] leading-relaxed mb-3 line-clamp-2 h-[36px]">
                       {item.description}
                     </p>
                     
-                    {/* --- RATINGS & REVIEWS --- */}
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[#F59E0B] text-sm font-black">★ {item.ratings}</span>
                       <span className="text-[#94A3B8] text-[10px] font-bold">({item.numOfReviews} Reviews)</span>
@@ -97,7 +100,7 @@ const Products = () => {
                     <p className="text-[#10B981] font-black text-xl mb-4">Rs {item.price}</p>
                     <button 
                       onClick={() => toggleCartHandler(item)}
-                      className={`w-full py-2 rounded-lg text-xs font-bold   text-white transition-all ${isInCart ? 'bg-[#EF4444]' : 'bg-[#F59E0B] cursor-pointer'}`}
+                      className={`w-full py-2 rounded-lg text-xs font-bold text-white transition-all ${isInCart ? 'bg-[#EF4444]' : 'bg-[#F59E0B] cursor-pointer'}`}
                     >
                       {isInCart ? 'Remove from Cart' : 'Add to Cart'}
                     </button>
@@ -107,12 +110,12 @@ const Products = () => {
             })}
           </div>
 
-          {/* --- CUSTOM PAGINATION --- */}
+          {/* Custom Pagination UI */}
           {productsCount > resultPerPage && (
             <div className="flex justify-center items-center gap-3 mt-16">
               <button 
                 disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
+                onClick={() => setCurrentPage(prev => prev - 1)}
                 className="px-4 py-2 bg-white border border-[#94A3B8]/30 rounded-lg font-bold text-[#0F172A] disabled:opacity-30 hover:bg-[#0F172A] hover:text-white transition-all"
               >
                 Prev
@@ -136,7 +139,7 @@ const Products = () => {
 
               <button 
                 disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(currentPage + 1)}
+                onClick={() => setCurrentPage(prev => prev + 1)}
                 className="px-4 py-2 bg-white border border-[#94A3B8]/30 rounded-lg font-bold text-[#0F172A] disabled:opacity-30 hover:bg-[#0F172A] hover:text-white transition-all"
               >
                 Next
@@ -145,7 +148,7 @@ const Products = () => {
           )}
         </>
       )}
-      {error && <p className="text-center text-red-500 mt-5">{error}</p>}
+      {error && <p className="text-center text-[#EF4444] font-bold mt-5 uppercase text-xs">{error}</p>}
     </div>
   );
 };

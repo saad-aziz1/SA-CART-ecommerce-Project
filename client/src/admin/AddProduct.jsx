@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, UploadCloud, Loader2 } from 'lucide-react'; // Loader2 icon add kiya
+import { Plus, Trash2, UploadCloud, Loader2 } from 'lucide-react'; 
 import { toast } from 'react-toastify'; 
-import axios from 'axios';
+// axios ki jagah apna api instance use kiya
+import api from '../utils/api'; 
 
 const AddProduct = () => {
   // --- 1: FORM STATES ---
@@ -12,10 +13,9 @@ const AddProduct = () => {
   const [category, setCategory] = useState("");
   const [images, setImages] = useState([]); 
   const [features, setFeatures] = useState([""]); 
-  const [loading, setLoading] = useState(false); // Naya loading state
+  const [loading, setLoading] = useState(false); 
 
   // --- 2: HANDLERS ---
-
   const addFeatureField = () => {
     const nayaArray = [...features, ""];
     setFeatures(nayaArray);
@@ -46,7 +46,7 @@ const AddProduct = () => {
       return;
     }
 
-    setLoading(true); // Loading shuru
+    setLoading(true); 
 
     const myForm = new FormData();
     myForm.append("name", name);
@@ -61,12 +61,13 @@ const AddProduct = () => {
     try {
       const loadingToast = toast.loading("Uploading Product to Server...");
 
-      const response = await axios.post(
-        "http://localhost:3000/api/product/admin/product/new", 
+      // axios.post ko api.post se badal diya aur localhost khatam
+      const response = await api.post(
+        "/api/product/admin/product/new", 
         myForm, 
         {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true
+          headers: { "Content-Type": "multipart/form-data" }
+          // withCredentials nikaal diya kyunke api instance mein set hy
         }
       );
 
@@ -88,7 +89,7 @@ const AddProduct = () => {
       toast.error(error.response?.data?.message || "Internal Server Error");
       console.log(error);
     } finally {
-      setLoading(false); // Loading khatam (Success ho ya Error)
+      setLoading(false); 
     }
   };
 

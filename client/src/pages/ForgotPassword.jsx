@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+// axios ko replace kiya
+import api from '../utils/api'; 
 import toast from 'react-hot-toast';
-import { Mail, ArrowLeft, Send } from 'lucide-react';
+import { Mail, ArrowLeft, Send } from 'lucide-center';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -13,10 +14,11 @@ const ForgotPassword = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/api/user/forgot-password", { email });
+      // Production ready API call using custom instance
+      const res = await api.post("/api/user/forgot-password", { email });
+      
       if (res.status === 200) {
         toast.success('OTP sent to your email!');
-        
         navigate('/reset-password', { state: { email } });
       }
     } catch (error) {

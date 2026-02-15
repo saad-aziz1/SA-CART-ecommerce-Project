@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// axios ko hata kar api utility import ki
+import api from '../utils/api'; 
 import toast from 'react-hot-toast';
 import { KeyRound, ShieldCheck, Lock, CheckCircle } from 'lucide-react';
 
@@ -9,7 +10,7 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   
-  
+  // Forgot password page se email state mein aa rahi hy
   const email = location.state?.email || "";
 
   const [formData, setFormData] = useState({
@@ -17,19 +18,20 @@ const ResetPassword = () => {
     newPassword: ""
   });
 
-const handleInput = (e) => {
-  const { name, value } = e.target;
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value
-  }));
-};
+  const handleInput = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/api/user/reset-password", {
+      // Production ready call: local host hata diya aur api instance use kiya
+      const res = await api.post("/api/user/reset-password", {
         email,
         otp: formData.otp,
         newPassword: formData.newPassword
@@ -40,6 +42,7 @@ const handleInput = (e) => {
         navigate('/login');
       }
     } catch (error) {
+      // toast message as per your preference
       toast.error(error.response?.data?.message || 'Invalid OTP or data.');
     } finally {
       setIsLoading(false);
@@ -59,7 +62,7 @@ const handleInput = (e) => {
         <div className="p-8">
           <form className="space-y-5" onSubmit={handleSubmit}>
             
-            {/* Read-onlyEmail*/}
+            {/* Read-only Email */}
             <div className="space-y-1.5 opacity-70">
               <label className="text-[#020617] text-[10px] font-black uppercase tracking-widest ml-1">Account Email</label>
               <div className="relative">
@@ -71,7 +74,7 @@ const handleInput = (e) => {
               </div>
             </div>
 
-            {/* OTP*/}
+            {/* OTP Input */}
             <div className="space-y-1.5">
               <label className="text-[#020617] text-[10px] font-black uppercase tracking-widest ml-1">Enter OTP Code</label>
               <div className="relative">
@@ -84,7 +87,7 @@ const handleInput = (e) => {
               </div>
             </div>
 
-            {/* NewPassword */}
+            {/* New Password Input */}
             <div className="space-y-1.5">
               <label className="text-[#020617] text-[10px] font-black uppercase tracking-widest ml-1">New Secure Password</label>
               <div className="relative">
@@ -101,7 +104,7 @@ const handleInput = (e) => {
               disabled={isLoading} type="submit"
               className="w-full bg-[#F59E0B] text-[#020617] py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#0F172A] hover:text-white transition-all flex items-center justify-center gap-2 shadow-lg active:scale-95 disabled:opacity-70 mt-4"
             >
-              {isLoading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : (
+              {isLoading ? <div className="w-5 h-5 border-2 border-[#0F172A] border-t-transparent rounded-full animate-spin"></div> : (
                 <>Update Password <CheckCircle className="w-4 h-4" /></>
               )}
             </button>

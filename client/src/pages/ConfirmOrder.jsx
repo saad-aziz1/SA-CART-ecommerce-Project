@@ -1,7 +1,8 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux"; 
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; 
+// import axios ko khatam kiya
+import api from "../utils/api"; // Central api instance
 import { toast } from "react-hot-toast";
 import { clearCart } from "../redux/cartSlice"; 
 
@@ -34,19 +35,20 @@ const ConfirmOrder = () => {
         taxPrice: tax,
         shippingPrice: shippingCharges,
         totalPrice: totalPrice,
+        // Production level: Cash on delivery marker
         paymentInfo: { id: "COD_" + Date.now(), status: "Cash on Delivery" }
       };
 
-      const config = { headers: { "Content-Type": "application/json" }, withCredentials: true };
-      
-      const { data } = await axios.post("http://localhost:3000/api/order/new", orderData, config);
+      // api instance already withCredentials aur headers handle karta hy
+      const { data } = await api.post("/api/order/new", orderData);
 
       if (data.success) {
-        toast.success("Order Placed Successfully!");
+        toast.success("Order Placed Successfully!"); // Using 'toast' as requested
         dispatch(clearCart()); 
         navigate("/order/success"); 
       }
     } catch (error) {
+      // Production style error handling
       toast.error(error.response?.data?.message || "Order Failed!");
     }
   };

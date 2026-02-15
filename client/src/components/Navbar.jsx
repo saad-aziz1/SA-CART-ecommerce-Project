@@ -3,36 +3,37 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Menu, User, Search, X, UserPlus, LogOut, ChevronRight } from 'lucide-react'; 
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../redux/authSlice';
-import axios from 'axios';
+// Custom api instance use kiya
+import api from '../utils/api'; 
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [keyword, setKeyword] = useState(""); // Naya: Search keyword ke liye state
+  const [keyword, setKeyword] = useState(""); 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.cart);
 
-  // Naya: Search function
+  // Search function: User ko keyword ke sath products page par bhejta hy
   const searchHandler = (e) => {
     e.preventDefault();
     if (keyword.trim()) {
-      navigate(`/products/${keyword}`); // Keyword ke sath products page pr jana
+      navigate(`/products/${keyword}`); 
     } else {
-      navigate("/products"); // Khali search pr simple products page
+      navigate("/products"); 
     }
   };
 
+  // Logout function: Backend session khatam karne ke liye
   const handleLogout = async () => {
     try {
-      const res = await axios.get(
-        "http://localhost:3000/api/user/logout",
-        { withCredentials: true }
-      );
+      // Relative path use kiya, credentials api instance handle karega
+      const res = await api.get("/api/user/logout");
+      
       if (res.status === 200) {
-        dispatch(logoutUser());
+        dispatch(logoutUser()); // Redux state clear
         toast.success("Logged out successfully!");
         navigate("/login");
       }
@@ -61,7 +62,7 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search products..."
-                onChange={(e) => setKeyword(e.target.value)} // State update
+                onChange={(e) => setKeyword(e.target.value)} 
                 className="w-full bg-[#020617] text-[#F8FAFC] border border-[#94A3B8]/30 rounded-xl py-2 pl-11 pr-4 focus:outline-none focus:border-[#F59E0B] transition-all"
               />
               <Search className="absolute left-4 top-2.5 w-5 h-5 text-[#94A3B8]" />
@@ -138,7 +139,7 @@ const Navbar = () => {
             <input
               type="text"
               placeholder="Search..."
-              onChange={(e) => setKeyword(e.target.value)} // State update
+              onChange={(e) => setKeyword(e.target.value)}
               className="w-full bg-[#020617] text-[#F8FAFC] border border-[#94A3B8]/20 rounded-xl py-3 pl-12 focus:outline-none"
             />
             <Search className="absolute left-4 top-3.5 w-5 h-5 text-[#94A3B8]" />

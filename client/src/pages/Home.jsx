@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductRequest, getProductsSuccess, getProductsFail } from '../redux/productSlice';
-import axios from 'axios';
+// axios ko replace kiya central api instance se
+import api from '../utils/api'; 
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -13,7 +14,8 @@ const Home = () => {
       try {
         dispatch(getProductRequest());
         // Home page par hum limit=8 bhej rhy hain taky sirf latest items ayen
-        const { data } = await axios.get("http://localhost:3000/api/product/products?limit=8", { withCredentials: true });
+        // api instance use ho raha hy jo base URL handle karega
+        const { data } = await api.get("/api/product/products?limit=8");
         dispatch(getProductsSuccess(data));
       } catch (err) {
         dispatch(getProductsFail(err.response?.data?.message || "Server Error"));

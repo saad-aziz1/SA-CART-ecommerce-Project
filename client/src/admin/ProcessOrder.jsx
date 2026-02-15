@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+// Axios ki jagah custom api instance use kiya
+import api from "../utils/api"; 
 import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 
@@ -13,8 +14,8 @@ const ProcessOrder = () => {
   // 1: Order Details Fetch Karna
   const getOrderDetails = async () => {
     try {
-      const config = { withCredentials: true };
-      const { data } = await axios.get(`http://localhost:3000/api/order/${id}`, config);
+      // Localhost aur withCredentials nikaal diya, api instance base URL use karega
+      const { data } = await api.get(`/api/order/${id}`);
       setOrder(data.order);
       setLoading(false);
     } catch (error) {
@@ -30,22 +31,18 @@ const ProcessOrder = () => {
 
     try {
       setUpdateLoading(true);
-      const config = { 
-        withCredentials: true,
-        headers: { "Content-Type": "application/json" }
-      };
-
-      const { data } = await axios.put(
-        `http://localhost:3000/api/order/admin/order/${id}`, 
-        { status }, 
-        config
+      
+      // Request payload aur relative path ke sath update call
+      const { data } = await api.put(
+        `/api/order/admin/order/${id}`, 
+        { status }
       );
 
       toast.success(data.message);
-      getOrderDetails(); // Data refresh karne ke liye
+      getOrderDetails(); // UI refresh karne ke liye data dubara fetch kiya
       setUpdateLoading(false);
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Update failed");
       setUpdateLoading(false);
     }
   };
@@ -111,33 +108,33 @@ const ProcessOrder = () => {
 
           {/* --- UPDATE STATUS SECTION --- */}
           <div className="bg-white p-8 rounded-[32px] shadow-sm border border-[#94A3B8]/10">
-             <h2 className="text-lg font-black text-[#0F172A] mb-4 uppercase">Update Status</h2>
-             
-             {order.orderStatus === "Delivered" ? (
-               <p className="text-[#10B981] font-bold text-center py-4 bg-[#10B981]/5 rounded-xl border border-[#10B981]/20">
-                 Order Delivered Successfully!
-               </p>
-             ) : (
-               <form onSubmit={updateOrderHandler} className="space-y-4">
-                 <select 
-                   className="w-full p-4 rounded-2xl bg-[#F8FAFC] border border-[#94A3B8]/20 font-bold text-sm focus:outline-none focus:border-[#F59E0B]"
-                   onChange={(e) => setStatus(e.target.value)}
-                   value={status}
-                 >
-                   <option value="">Choose Category</option>
-                   {order.orderStatus === "Processing" && <option value="Shipped">Shipped</option>}
-                   {order.orderStatus === "Shipped" && <option value="Delivered">Delivered</option>}
-                 </select>
+              <h2 className="text-lg font-black text-[#0F172A] mb-4 uppercase">Update Status</h2>
+              
+              {order.orderStatus === "Delivered" ? (
+                <p className="text-[#10B981] font-bold text-center py-4 bg-[#10B981]/5 rounded-xl border border-[#10B981]/20">
+                  Order Delivered Successfully!
+                </p>
+              ) : (
+                <form onSubmit={updateOrderHandler} className="space-y-4">
+                  <select 
+                    className="w-full p-4 rounded-2xl bg-[#F8FAFC] border border-[#94A3B8]/20 font-bold text-sm focus:outline-none focus:border-[#F59E0B]"
+                    onChange={(e) => setStatus(e.target.value)}
+                    value={status}
+                  >
+                    <option value="">Choose Category</option>
+                    {order.orderStatus === "Processing" && <option value="Shipped">Shipped</option>}
+                    {order.orderStatus === "Shipped" && <option value="Delivered">Delivered</option>}
+                  </select>
 
-                 <button 
-                   type="submit"
-                   disabled={updateLoading || status === ""}
-                   className="w-full bg-[#F59E0B] text-[#0F172A] font-black py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 uppercase tracking-widest text-xs"
-                 >
-                   {updateLoading ? "Updating..." : "Process Order"}
-                 </button>
-               </form>
-             )}
+                  <button 
+                    type="submit"
+                    disabled={updateLoading || status === ""}
+                    className="w-full bg-[#F59E0B] text-[#0F172A] font-black py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 uppercase tracking-widest text-xs"
+                  >
+                    {updateLoading ? "Updating..." : "Process Order"}
+                  </button>
+                </form>
+              )}
           </div>
         </div>
 
