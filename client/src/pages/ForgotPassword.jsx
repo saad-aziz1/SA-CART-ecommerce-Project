@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 // axios ko replace kiya
 import api from '../utils/api'; 
 import toast from 'react-hot-toast';
-import { Mail, ArrowLeft, Send } from 'lucide-center';
+import { Mail, ArrowLeft, Send } from 'lucide-react';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
