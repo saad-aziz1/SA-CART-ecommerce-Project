@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// axios ko replace kiya central api instance se
 import api from '../../utils/api.js'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'; 
@@ -11,11 +10,8 @@ import { addToCart, removeFromCart } from '../redux/cartSlice';
 
 const Products = () => {
   const dispatch = useDispatch();
-  
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Redux Data
   const { 
     products, 
     loading, 
@@ -25,11 +21,8 @@ const Products = () => {
   } = useSelector((state) => state.products);
 
   const { cartItems } = useSelector((state) => state.cart);
-
-  // Calculate total pages
   const totalPages = Math.ceil(productsCount / resultPerPage);
 
-  // Cart Handler
   const toggleCartHandler = (item) => {
     const isExist = cartItems.find((i) => i.product === item._id);
     if (isExist) {
@@ -50,10 +43,9 @@ const Products = () => {
       try {
         dispatch(getProductRequest());
         
-        // Production ready relative link
-        let link = `/api/product/products?page=${currentPage}`;
+        // FIX: Remove the leading slash so it appends to baseURL properly
+        let link = `api/product/products?page=${currentPage}`;
 
-        // Central api utility handles base URL and credentials
         const { data } = await api.get(link);
         
         dispatch(getProductsSuccess(data)); 
@@ -62,7 +54,6 @@ const Products = () => {
       }
     };
     fetchProducts();
-    // Scroll to top when page changes
     window.scrollTo(0, 0);
   }, [dispatch, currentPage]);
 
@@ -76,7 +67,6 @@ const Products = () => {
         </div>
       ) : (
         <>
-          {/* Products Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10 max-w-7xl mx-auto">
             {products && products.map((item) => {
               const isInCart = cartItems.find((c) => c.product === item._id);
@@ -87,16 +77,13 @@ const Products = () => {
                   </Link>
                   <div className="p-4 flex flex-col flex-grow">
                     <h2 className="text-[#0F172A] font-bold text-base mb-1 truncate">{item.name}</h2>
-                    
                     <p className="text-[#475569] text-[12px] leading-relaxed mb-3 line-clamp-2 h-[36px]">
                       {item.description}
                     </p>
-                    
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[#F59E0B] text-sm font-black">★ {item.ratings}</span>
                       <span className="text-[#94A3B8] text-[10px] font-bold">({item.numOfReviews} Reviews)</span>
                     </div>
-
                     <p className="text-[#10B981] font-black text-xl mb-4">Rs {item.price}</p>
                     <button 
                       onClick={() => toggleCartHandler(item)}
@@ -110,7 +97,6 @@ const Products = () => {
             })}
           </div>
 
-          {/* Custom Pagination UI */}
           {productsCount > resultPerPage && (
             <div className="flex justify-center items-center gap-3 mt-16">
               <button 
@@ -120,7 +106,6 @@ const Products = () => {
               >
                 Prev
               </button>
-
               <div className="flex gap-2">
                 {[...Array(totalPages)].map((_, index) => (
                   <button
@@ -136,7 +121,6 @@ const Products = () => {
                   </button>
                 ))}
               </div>
-
               <button 
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => prev + 1)}
