@@ -26,7 +26,7 @@ import ConfirmOrder from './pages/ConfirmOrder.jsx'
 import OrderSuccess from './pages/OrderSuccess.jsx'
 import AllOrders from './admin/AllOrders.jsx'
 import ProcessOrder from './admin/ProcessOrder.jsx'
-import MyOrders from './pages/myOrders.jsx'
+import MyOrders from './pages/MyOrders.jsx'
 
 // --- ROUTER CONFIGURATION ---
 const projectRouter = createBrowserRouter([
