@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 // axios ko hata kar central api utility use ki
-import api from '../../utils/api'; 
+import api from '../../utils/api.js'; 
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';

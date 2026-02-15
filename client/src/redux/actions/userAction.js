@@ -1,4 +1,4 @@
-import api from '../../utils/api'; // Axios instance 
+import api from '../../utils/api.js'; // Axios instance 
 
 // Get All Users (Admin)
 export const getAllUsers = () => async (dispatch) => {

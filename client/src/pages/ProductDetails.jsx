@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 // axios ko replace kiya central api instance se
-import api from '../utils/api'; 
+import api from '../utils/api.js'; 
 import { getProductRequest, getProductDetailsSuccess, getProductsFail, newReviewReset } from '../redux/productSlice';
 import { submitReview, clearReviewErrors } from '../redux/actions/productActions.js';
 import { addItemsToCart, removeFromCart } from '../redux/cartSlice.js'; 

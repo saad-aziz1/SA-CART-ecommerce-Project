@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import api from "../utils/api"; // Axios instance use kiya
+import api from "../utils/api.js"; // Axios instance use kiya
 
 // --- LOAD USER THUNK ---
 export const loadUser = createAsyncThunk(

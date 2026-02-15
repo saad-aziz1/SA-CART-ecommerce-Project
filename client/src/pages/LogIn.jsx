@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 // axios ko replace kiya central api instance se
-import api from '../utils/api'; 
+import api from '../utils/api.js'; 
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock, LogIn as LoginIcon } from 'lucide-react';
 // Firebase imports for Google Login

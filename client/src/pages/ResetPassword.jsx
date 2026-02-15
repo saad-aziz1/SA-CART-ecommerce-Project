@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 // Path aur casing check karen: agar file ka naam api.js hy toh ye sahi hy
-import api from '../utils/api'; 
+import api from '../utils/api.js'; 
 import toast from 'react-hot-toast';
 import { KeyRound, ShieldCheck, Lock, CheckCircle } from 'lucide-react';
 

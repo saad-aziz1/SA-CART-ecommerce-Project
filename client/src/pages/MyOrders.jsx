@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // axios ko replace kiya central api instance se
-import api from '../utils/api'; 
+import api from '../utils/api.js'; 
 import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 import { Package, ChevronDown, ChevronUp, Clock, ShoppingCart, MapPin, CreditCard, User } from 'lucide-react';
