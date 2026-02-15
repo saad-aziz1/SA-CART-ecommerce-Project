@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Trash2, UploadCloud, Loader2 } from 'lucide-react'; 
 import { toast } from 'react-toastify'; 
 // axios ki jagah apna api instance use kiya
-import api from '../utils/api.js'; 
+import api from '../../utils/api.js'; 
 
 const AddProduct = () => {
   // --- 1: FORM STATES ---

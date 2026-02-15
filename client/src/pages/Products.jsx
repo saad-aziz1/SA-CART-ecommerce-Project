@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // axios ko replace kiya central api instance se
-import api from '../utils/api.js'; 
+import api from '../../utils/api.js'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'; 
 import toast from 'react-hot-toast';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import api from "../utils/api.js"; // Axios instance use kiya
+import api from "../../utils/api.js"; // Axios instance use kiya
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";

@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux"; 
 import { Link, useNavigate } from "react-router-dom";
 // import axios ko khatam kiya
-import api from "../utils/api.js"; // Central api instance
+import api from "../../utils/api.js"; // Central api instance
 import { toast } from "react-hot-toast";
 import { clearCart } from "../redux/cartSlice"; 
 

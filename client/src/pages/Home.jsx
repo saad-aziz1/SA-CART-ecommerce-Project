@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductRequest, getProductsSuccess, getProductsFail } from '../redux/productSlice';
 // axios ko replace kiya central api instance se
-import api from '../utils/api.js'; 
+import api from '../../utils/api.js'; 
 
 const Home = () => {
   const dispatch = useDispatch();

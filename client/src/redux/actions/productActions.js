@@ -1,5 +1,5 @@
 
-import api from '../../utils/api.js'; // Axios instance 
+import api from '../../../utils/api.js'; // Axios instance 
 import { 
     newReviewRequest, 
     newReviewSuccess, 

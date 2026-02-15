@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 // Custom api instance import kiya
-import api from '../utils/api.js'; 
+import api from '../../utils/api.js'; 
 import { Trash2, User } from 'lucide-react'; 
 import { toast } from 'react-hot-toast';
 

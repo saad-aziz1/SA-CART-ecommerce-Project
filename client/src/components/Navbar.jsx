@@ -4,7 +4,7 @@ import { ShoppingCart, Menu, User, Search, X, UserPlus, LogOut, ChevronRight } f
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../redux/authSlice';
 // Custom api instance use kiya
-import api from '../utils/api'; 
+import api from '../../utils/api.js'; 
 import toast from 'react-hot-toast';
 
 const Navbar = () => {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 // Axios ki jagah custom api instance use kiya
-import api from "../utils/api.js"; 
+import api from "../../utils/api.js"; 
 import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 

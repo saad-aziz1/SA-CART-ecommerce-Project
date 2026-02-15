@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 // axios ko replace kiya
-import api from '../utils/api.js'; 
+import api from '../../utils/api.js'
 import toast from 'react-hot-toast';
 import { Mail, ArrowLeft, Send } from 'lucide-react';
 
