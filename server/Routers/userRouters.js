@@ -10,7 +10,8 @@ import {
     resetPassword, 
     SignUp, 
     updateUserRole,
-    updateProfile // Naya controller import karen
+    updateProfile, 
+    deleteUser
 } from '../controllers/userControllers.js'
 import { verifyEmail } from '../controllers/emailVrifyController.js'
 import { isAuthorized } from '../middleware/authMiddleware.js'
@@ -43,5 +44,9 @@ userRouter.get('/admin/user/:id', isAuthorized, isAdmin, getUserByID)
 
 // Naya route add karen
 userRouter.put('/admin/user/:id', isAuthorized, isAdmin, updateUserRole);
+
+// delete user admin
+userRouter.delete('/admin/user/:id', isAuthorized, isAdmin, deleteUser);
+
 
 export default userRouter
