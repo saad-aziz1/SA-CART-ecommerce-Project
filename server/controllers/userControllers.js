@@ -23,7 +23,7 @@ const loginSchema = Joi.object({
 // SignUp
 export const SignUp = async (req, res) => {
     try {
-        // 1. Joi Validation (Jo aapka pehle se tha)
+        // 1. Joi Validation 
         const { error } = signupSchema.validate(req.body);
         if (error) {
             return res.status(400).json({ success: false, message: error.details[0].message });
@@ -40,7 +40,7 @@ export const SignUp = async (req, res) => {
         // 3. Password Hashing
         const hashPassword = await bcrypt.hash(password, 10);
 
-        // 4. User Creation (Yahan newUser define ho raha hy)
+        // 4. User Creation
         const newUser = await User.create({
             firstName,
             lastName,
@@ -63,16 +63,26 @@ export const SignUp = async (req, res) => {
         const verifyToken = generateVerifyToken(newUser._id);
         const verifyLink = `${process.env.BASE_URL}/api/user/verify-email?token=${verifyToken}`;
 
-        // 7. Background Email (No await here for speed)
-        sendEmail({
-            to: newUser.email,
-            subject: "Verify your Email",
-            html: `
-                <h2>Welcome ${newUser.firstName}</h2>
-                <p>Please verify your email by clicking the link below:</p>
-                <a href="${verifyLink}">Verify Email</a>
-                <p>This link will expire in 10 minutes.</p>`
-        }).catch(err => console.error("Background Email Error:", err));
+        // 7. Email Section with Debugging (Await added)
+        try {
+            console.log("Email bhejne ki koshish... User:", newUser.email);
+            
+            const emailResult = await sendEmail({
+                to: newUser.email,
+                subject: "Verify your Email",
+                html: `
+                    <h2>Welcome ${newUser.firstName}</h2>
+                    <p>Please verify your email by clicking the link below:</p>
+                    <a href="${verifyLink}">Verify Email</a>
+                    <p>This link will expire in 10 minutes.</p>`
+            });
+
+            console.log("Email successfully bheji gayi via Brevo:", emailResult.messageId);
+
+        } catch (emailErr) {
+            // Agar email fail ho tu signup na rukay lekin error console mein aye
+            console.error("Critical Email Error during Signup:", emailErr.message);
+        }
 
         // 8. Success Response
         return res.status(201).json({
