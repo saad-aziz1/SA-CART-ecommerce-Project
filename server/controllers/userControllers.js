@@ -21,71 +21,38 @@ const loginSchema = Joi.object({
 });
 
 // SignUp
+// userControllers.js
+
 export const SignUp = async (req, res) => {
     try {
-        // Joi Validation
-        const { error } = signupSchema.validate(req.body);
-        if (error) {
-            return res.status(400).json({
-                success: false,
-                message: error.details[0].message
-            });
-        }
-
-        const { firstName, lastName, email, password } = req.body;
-
-        // Existing User Check
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({
-                success: false,
-                message: "Email already exists"
-            });
-        }
-
-        // Password Hashing
-
-        const hashPassword = await bcrypt.hash(password, 10);
-
-        // User Creation
-        const newUser = await User.create({
-            firstName,
-            lastName,
-            email,
-            password: hashPassword,
-            isGoogleUser:false
-        });
-
-        // token generate & parsing
-        const token = generateToken(newUser._id)
+        
+        const token = generateToken(newUser._id);
 
         res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000
-});
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
 
+        
+        const verifyToken = generateVerifyToken(newUser._id);
+        const verifyLink = `${process.env.BASE_URL}/api/user/verify-email?token=${verifyToken}`;
 
-        //Email verification
-        const verifyToken = generateVerifyToken(newUser._id)
-        console.log("Verification Token:", verifyToken)
-        const verifyLink = `${process.env.BASE_URL}/api/user/verify-email?token=${verifyToken}`
-
-        await sendEmail({
+        
+        sendEmail({
             to: newUser.email,
-            subject: "verify your Email",
+            subject: "Verify your Email",
             html: `
-                 <h2>Welcome ${newUser.firstName}</h2>
+                <h2>Welcome ${newUser.firstName}</h2>
                 <p>Please verify your email by clicking the link below:</p>
                 <a href="${verifyLink}">Verify Email</a>
                 <p>This link will expire in 10 minutes.</p>`
-        })
-
+        }).catch(err => console.error("Background Email Error:", err)); 
+        
         return res.status(201).json({
             success: true,
-            message: "User SignUp Successfully",
-
+            message: "User SignUp Successfully. Please check your email for verification.",
             user: {
                 id: newUser._id,
                 firstName: newUser.firstName,
