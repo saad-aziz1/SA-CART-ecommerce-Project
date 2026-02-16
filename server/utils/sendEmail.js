@@ -2,32 +2,31 @@ import nodemailer from "nodemailer";
 
 const sendEmail = async ({ to, subject, html }) => {
   try {
+    
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587, // Port 587 for STARTTLS
-      secure: false, // TLS ke liye false hona chahiye
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false, 
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS, // Aapka 16-character App Password
+        user: process.env.BREVO_USER, 
+        pass: process.env.BREVO_API_KEY, 
       },
-      tls: {
-        rejectUnauthorized: false // Ye production par self-signed certificate errors ko handle karta hy
-      }
     });
 
     const mailOptions = {
-      from: `"SA-Cart" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html,
+      from: `"SA-Cart" <${process.env.BREVO_USER}>`, 
+      to: to,
+      subject: subject,
+      html: html,
     };
 
+    
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email Result:", info.response);
+    console.log("Email sent successfully via Brevo:", info.messageId);
     return info;
 
   } catch (error) {
-    console.error("Gmail Production Error:", error);
+    console.error("Brevo SMTP Error:", error);
     throw error;
   }
 };
