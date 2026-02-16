@@ -28,7 +28,8 @@ export const verifyEmail = async (req, res) => {
         user.isVerified = true;
         await user.save();
 
-        return res.redirect("http://localhost:5173/login")
+        return res.redirect(`${process.env.FRONTEND_URL}/login`);
+
 
     } catch (error) {
         console.error("Email verification error:", error);
