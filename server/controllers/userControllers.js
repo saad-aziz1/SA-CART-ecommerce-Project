@@ -21,11 +21,35 @@ const loginSchema = Joi.object({
 });
 
 // SignUp
-// userControllers.js
-
 export const SignUp = async (req, res) => {
     try {
-        
+        // 1. Joi Validation (Jo aapka pehle se tha)
+        const { error } = signupSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ success: false, message: error.details[0].message });
+        }
+
+        const { firstName, lastName, email, password } = req.body;
+
+        // 2. Existing User Check
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ success: false, message: "Email already exists" });
+        }
+
+        // 3. Password Hashing
+        const hashPassword = await bcrypt.hash(password, 10);
+
+        // 4. User Creation (Yahan newUser define ho raha hy)
+        const newUser = await User.create({
+            firstName,
+            lastName,
+            email,
+            password: hashPassword,
+            isGoogleUser: false
+        });
+
+        // 5. Token generation
         const token = generateToken(newUser._id);
 
         res.cookie("token", token, {
@@ -35,11 +59,11 @@ export const SignUp = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-        
+        // 6. Email verification link
         const verifyToken = generateVerifyToken(newUser._id);
         const verifyLink = `${process.env.BASE_URL}/api/user/verify-email?token=${verifyToken}`;
 
-        
+        // 7. Background Email (No await here for speed)
         sendEmail({
             to: newUser.email,
             subject: "Verify your Email",
@@ -48,11 +72,12 @@ export const SignUp = async (req, res) => {
                 <p>Please verify your email by clicking the link below:</p>
                 <a href="${verifyLink}">Verify Email</a>
                 <p>This link will expire in 10 minutes.</p>`
-        }).catch(err => console.error("Background Email Error:", err)); 
-        
+        }).catch(err => console.error("Background Email Error:", err));
+
+        // 8. Success Response
         return res.status(201).json({
             success: true,
-            message: "User SignUp Successfully. Please check your email for verification.",
+            message: "User SignUp Successfully. Please check your email.",
             user: {
                 id: newUser._id,
                 firstName: newUser.firstName,
@@ -69,7 +94,7 @@ export const SignUp = async (req, res) => {
             message: "Internal Server Error"
         });
     }
-}
+};
 
 //Login
 
