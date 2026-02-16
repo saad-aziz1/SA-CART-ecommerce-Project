@@ -72,7 +72,7 @@ export const SignUp = async (req, res) => {
         console.log("Verification Token:", verifyToken)
         const verifyLink = `${process.env.BASE_URL}/api/user/verify-email?token=${verifyToken}`
 
-        sendEmail({
+        await sendEmail({
             to: newUser.email,
             subject: "verify your Email",
             html: `
