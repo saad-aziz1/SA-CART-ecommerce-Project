@@ -59,19 +59,20 @@ export const SignUp = async (req, res) => {
         // token generate & parsing
         const token = generateToken(newUser._id)
 
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        })
+        res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+});
+
 
         //Email verification
         const verifyToken = generateVerifyToken(newUser._id)
         console.log("Verification Token:", verifyToken)
         const verifyLink = `${process.env.BASE_URL}/api/user/verify-email?token=${verifyToken}`
 
-        await sendEmail({
+        sendEmail({
             to: newUser.email,
             subject: "verify your Email",
             html: `
